@@ -1,0 +1,383 @@
+/* === Upwork-Style Global Components === */
+
+/* === Navbar === */
+.upwork-navbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 64px;
+  background-color: #ffffff;
+  border-bottom: 1px solid #e6e6e6;
+  padding: 0 2.5rem;
+  z-index: 1000;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-family: 'Segoe UI', sans-serif;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.03);
+}
+
+.logo {
+  font-size: 1.7rem;
+  font-weight: 700;
+  color: #14a800;
+  text-decoration: none;
+}
+
+.freelancer-welcome {
+  position: fixed;       /* Fix it relative to viewport */
+  top: 50%;             /* Center vertically */
+  left: 50%;            /* Center horizontally */
+  transform: translate(-50%, -50%); /* Adjust back by half width & height */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem 2rem;
+  width: 90vw;          /* Responsive width */
+  max-width: 800px;
+
+  border-radius: 16px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+  text-align: center;
+  z-index: 999;         /* Make sure it's above everything else */
+}
+
+.freelancer-welcome h2 {
+  font-size: 3.5rem;    /* Bigger title */
+  font-weight: 700;
+  color: #14532d;
+  margin-bottom: 1rem;
+}
+
+.freelancer-welcome p {
+  font-size: 1.5rem;    /* Slightly bigger paragraph */
+  color: #1e3a2c;
+  font-weight: 500;
+  max-width: 600px;
+}
+
+
+.nav-section-right {
+  display: flex;
+  align-items: center;
+  gap: 1.2rem;
+}
+
+
+.nav-link {
+  font-size: 0.95rem;
+  color: #333;
+  font-weight: 500;
+  text-decoration: none;
+  padding: 6px 12px;
+  border-radius: 6px;
+  transition: all 0.3s ease;
+}
+
+.nav-link:hover {
+  background-color: #f0fdf4;
+  color: #14a800;
+}
+
+.bell-icon {
+  font-size: 1.2rem;
+  color: #14a800;
+  position: relative; /* required for notif-dot positioning */
+}
+
+
+.user-dropdown {
+  position: relative;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+}
+
+.user-icon {
+  color: #374151;
+  transition: color 0.2s ease;
+}
+
+.user-icon:hover {
+  color: #10b981;
+}
+
+.user-name {
+  font-weight: 500;
+  font-size: 0.95rem;
+  color: #374151;
+  margin-left: 0.6rem;
+}
+
+.dropdown-menu {
+  position: absolute;
+  top: 40px;
+  right: 0;
+  background-color: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06);
+  width: 180px;
+  padding: 0.5rem 0;
+  z-index: 999;
+}
+
+.dropdown-item {
+  padding: 0.6rem 1rem;
+  font-size: 0.95rem;
+  color: #374151;
+  display: block;
+  text-decoration: none;
+  transition: background-color 1s ease;
+}
+
+.dropdown-item:hover {
+  background-color: #f3f4f6;
+  color: #111827;
+}
+
+.dropdown-divider {
+  border-top: 1px solid #e5e7eb;
+  margin: 0.4rem 0;
+}
+.notif-dot {
+  position: absolute;
+  top: -2px;
+  right: -2px;
+  width: 10px;
+  height: 10px;
+  background-color: #ef4444da; /* red */
+  border: #6ad6bb;
+  border-radius: 50%;
+  box-shadow: 0 0 2px rgba(0, 0, 0, 0.2);
+}
+.success-message {
+  font-size: 5rem;
+  font-weight: 500;
+  color: green;
+text-align: center;
+  padding: 0.5rem 0;
+}
+.logout-btn {
+  background: none;
+  border: none;
+  width: 100%;
+  text-align: left;
+  font-size: 0.95rem;
+  padding: 0.6rem 1rem;
+  color: #ef4444;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.logout-btn:hover {
+  background-color: #ffe4e6;
+}
+.freelancer-dashboard-container {
+  max-width: 800px;      /* Limit width for readability */
+  margin: 40px auto;     /* Center horizontally and add vertical spacing */
+  padding: 20px 30px;   /* Some padding */
+  justify-content: center;
+  border-radius: 8px;    /* Rounded corners */
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); /* Soft shadow */
+  text-align: center;    /* Center text */
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  color: #333;
+}
+
+.freelancer-dashboard-container h2 {
+  margin-bottom: 15px;
+  font-weight: 700;
+  font-size: 2rem;
+  color: #2c3e50;
+}
+
+.freelancer-dashboard-container p {
+  font-size: 1.125rem;
+  line-height: 1.6;
+  color: #555;
+}
+
+/* === Buttons === */
+.btn-blue {
+  background-color: #928dda;
+  color: #ffffff;
+  padding: 0.6rem 1.2rem;
+  border: none;
+  border-radius: 8px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.btn-blue:hover {
+  background-color: #928dda;
+}
+
+.btn-green {
+  background-color: #14a800;
+  color: #ffffff;
+  padding: 0.6rem 1.2rem;
+  border: none;
+  border-radius: 8px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.btn-green:hover {
+  background-color: #128000;
+}
+/* Proposal Form Container */
+.proposal-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.2rem;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  color: #333;
+}
+
+/* Label Styles */
+.proposal-form label {
+  font-weight: 600;
+  margin-bottom: 0.3rem;
+  display: block;
+  font-size: 0.95rem;
+  color: #374151;
+}
+
+/* Input Fields */
+.proposal-form input[type="url"],
+.proposal-form input[type="text"] {
+  width: 100%;
+  padding: 0.6rem 0.9rem;
+  border: 1.5px solid #d1d5db; /* light gray border */
+  border-radius: 6px;
+  font-size: 1rem;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.proposal-form input[type="url"]:focus,
+.proposal-form input[type="text"]:focus {
+  border-color: #14a800; /* green focus */
+  box-shadow: 0 0 6px #a1c95988;
+  outline: none;
+}
+
+/* Submit Button */
+.proposal-form button[type="submit"] {
+  background-color: #14a800;
+  color: white;
+  padding: 0.65rem 1.2rem;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  align-self: flex-start;
+  box-shadow: 0 2px 6px rgba(20, 168, 0, 0.3);
+}
+
+.proposal-form button[type="submit"]:hover {
+  background-color: #128000;
+}
+
+/* Responsive tweaks */
+@media (max-width: 480px) {
+  .proposal-form {
+    gap: 1rem;
+  }
+  .proposal-form button[type="submit"] {
+    width: 100%;
+  }
+}
+.freelancer-welcome {
+margin-top: 30%;
+  padding: 1rem 2rem;
+  border-top: 1px solid #ddd;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.freelancer-welcome h2 {
+  margin: 0 0 0.5rem 0;
+  font-size: 1.5rem;
+  color: #333;
+}
+
+.freelancer-welcome p {
+  margin: 0;
+  color: #555;
+}
+
+/* === Forms === */
+.textarea,
+.select-input {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid #cbd5e0;
+  border-radius: 8px;
+  margin-bottom: 0.75rem;
+  font-size: 1rem;
+  resize: vertical;
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.03);
+  font-family: inherit;
+}
+
+.textarea:focus,
+.select-input:focus {
+  outline: none;
+  border-color: #928dda;
+}
+
+.form-label {
+  font-weight: 500;
+  display: block;
+  margin-bottom: 0.3rem;
+}
+
+.review-form,
+.proposal-form {
+  background: #ffffff;
+  padding: 1.25rem;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  max-width: 600px;
+  margin: 2rem auto;
+}
+
+.review-form {
+  margin-top: 1rem;
+  padding: 1rem;
+  background: #f9fafb;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+}
+
+.review-form label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+}
+
+.review-form select,
+.review-form textarea {
+  width: 100%;
+  padding: 0.5rem;
+  margin-bottom: 1rem;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  font-size: 1rem;
+}
+
+.review-form .btn-primary {
+  padding: 0.5rem 1rem;
+  background-color: #928dda;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}

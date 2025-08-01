@@ -1,0 +1,206 @@
+.dashboard-page {
+  padding: 3rem 4rem;
+  min-height: 80vh;
+  font-family: 'Segoe UI', sans-serif;
+  border-radius: 10px; /* optional: to soften edges */
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1); /* optional: frosted look */
+}
+
+.dashboard-header {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  margin: 3rem 0rem;
+}
+
+.dashboard-header h1 {
+  font-size: 2.4rem;
+  font-weight: 700;
+  color: #111827;
+}
+
+.search-filter {
+  display: flex;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+}
+
+.search-filter input,
+.search-filter select {
+  padding: 0.8rem 1.2rem;
+  border: 1px solid #d1d5db;
+  border-radius: 10px;
+  font-size: 1rem;
+  width: 250px;
+  background-color: #ffffff;
+}
+
+.loading,
+.empty-state {
+  font-size: 1.2rem;
+  text-align: center;
+  color: #6b7280;
+  margin-top: 3rem;
+}
+
+/* Grid for project cards */
+.grid-projects {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(500px, 1fr)); /* ⬅️ increased from 320px */
+  gap: 6rem; /* adjusted spacing */
+  margin-top: 2rem;
+}
+
+.success-message {
+  font-size: 5rem;
+  font-weight: 500;
+  color: green;
+text-align: center;
+  padding: 0.5rem 0;
+}
+
+/* Individual card style */
+.project-card {
+  background-color: #ffffff;
+  border-radius: 14px;
+  padding: 2rem;
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.06);
+  transition: box-shadow 0.3s ease;
+}
+
+.project-card:hover {
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.1);
+}
+
+.project-card h3 {
+  font-size: 1.4rem;
+  font-weight: 600;
+  margin-bottom: 0.8rem;
+  color: #111827;
+}
+
+.project-card p {
+  margin: 0.4rem 0;
+  color: #374151;
+  line-height: 1.6;
+  font-size: 1rem;
+}
+
+/* Card actions */
+.card-actions {
+  margin-top: 1.5rem;
+  display: flex;
+  gap: 0.75rem;
+}
+
+.btn-green,
+.btn-red,
+.btn-slate {
+  padding: 0.6rem 1.2rem;
+  border-radius: 8px;
+  font-weight: 500;
+  font-size: 1rem;
+  cursor: pointer;
+  border: none;
+}
+
+.btn-green {
+  background-color: #10b981;
+  color: white;
+}
+.btn-green:hover {
+  background-color: #059669;
+}
+
+.btn-red {
+  background-color: #ef4444;
+  color: white;
+}
+.btn-red:hover {
+  background-color: #dc2626;
+}
+
+.btn-slate {
+  background-color: #6b7280;
+  color: white;
+}
+.btn-slate:hover {
+  background-color: #4b5563;
+}
+@media (max-width: 768px) {
+  .grid-projects {
+    grid-template-columns: 1fr;
+    gap: 2rem;
+  }
+
+  .dashboard-page {
+    padding: 2rem 1rem;
+  }
+
+  .search-filter input,
+  .search-filter select {
+    width: 100%;
+  }
+}
+
+/* Modal styling */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(31, 41, 55, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 999;
+}
+
+.modal-grid {
+  background-color: white;
+  padding: 2.5rem;
+  border-radius: 14px;
+  width: 90%;
+  max-width: 550px;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
+}
+
+/* Form layout */
+.form-grid {
+  display: grid;
+  gap: 1.5rem;
+  margin-top: 1rem;
+}
+
+.form-grid label {
+  display: flex;
+  flex-direction: column;
+  font-weight: 600;
+  color: #374151;
+  font-size: 1rem;
+}
+
+input[type="text"],
+input[type="number"],
+input[type="date"],
+textarea {
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+  border: 1px solid #d1d5db;
+  margin-top: 0.5rem;
+  font-size: 1rem;
+  background-color: #fefefe;
+}
+
+textarea {
+  resize: vertical;
+  min-height: 120px;
+}
+
+.form-actions {
+  display: flex;
+  gap: 1rem;
+  justify-content: flex-end;
+  margin-top: 1.5rem;
+}

@@ -1,0 +1,108 @@
+/* === Auth Form Styles (Login & Register) === */
+
+html, body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background: url("../assets/back.jpg") no-repeat center center fixed;
+  background-size: cover;
+}
+
+/* Wrapper to center form */
+.form-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  padding: 1rem;
+}
+
+/* The form box */
+.form-container {
+  width: 420px;
+  padding: 2.5rem 2rem;
+  background-color: #ffffff;
+  border-radius: 20px;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.1);
+  text-align: center;
+  transition: transform 0.3s ease;
+ 
+}
+
+
+.form-container:hover {
+  transform: translateY(-5px); /* Lift effect on hover */
+}
+
+.form-container h2 {
+  margin-bottom: 1.5rem;
+  font-size: 2rem; /* Increased font size */
+  color: #1e293b; /* Retaining the original title color */
+  font-weight: 700; /* Bolder font weight */
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1); /* Subtle text shadow */
+}
+
+.form-container form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem; /* Increased gap for better spacing */
+}
+
+.form-container input {
+  padding: 1rem;
+  border: 2px solid #d1d5db; /* Thicker border */
+  border-radius: 10px; /* Slightly more rounded */
+  font-size: 1rem;
+  transition: border 0.3s, box-shadow 0.3s, background-color 0.3s; /* Added background transition */
+  background-color: #f9fafb; /* Light background for inputs */
+}
+
+.form-container input:focus {
+  border-color: #22c55e; /* Green border on focus */
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.2); /* Green shadow on focus */
+  background-color: #ffffff; /* White background on focus */
+}
+
+.form-container button {
+  padding: 1rem;
+  background-color: #22c55e; /* Green button */
+  color: #ffffff;
+  font-size: 1.1rem; /* Slightly larger font size */
+  font-weight: 600;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease; /* Added box-shadow transition */
+}
+
+.form-container button:hover {
+  background-color: #16a34a; /* Darker green on hover */
+  transform: scale(1.05); /* Slightly larger on hover */
+  box-shadow: 0 4px 20px rgba(34, 197, 94, 0.3); /* Shadow effect on hover */
+}
+
+.form-container p {
+  margin-top: 1.5rem;
+  font-size: 0.95rem;
+  color: #374151; /* Keeping the original text color */
+}
+
+.form-container a {
+  color: #22c55e; /* Green link color */
+  text-decoration: none;
+  font-weight: 500;
+  transition: color 0.3s; /* Added color transition */
+}
+
+.form-container a:hover {
+  text-decoration: underline;
+  color: #16a34a; /* Darker green on hover */
+}
+
+.Toastify__toast-container {
+  font-size: 0.9rem;
+}
