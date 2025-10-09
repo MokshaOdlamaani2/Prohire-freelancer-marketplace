@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import axios from "axios";
+import api from "../api"; // import the axios instance
 import { useNavigate, Link } from "react-router-dom";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -15,7 +15,8 @@ const Login = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const res = await axios.post("http://localhost:5000/api/auth/login", formData);
+      // Use the api instance here (no hardcoded URL)
+      const res = await api.post("/api/auth/login", formData);
 
       const userId = res.data.user._id || res.data.user.id;
       localStorage.setItem("userId", userId);
@@ -31,7 +32,7 @@ const Login = () => {
             role === "client"
               ? "/client-dashboard"
               : role === "freelancer"
-              ? "/projects" // ✅ Redirect freelancer to browse projects
+              ? "/projects"
               : "/admin-dashboard"
           );
         },
@@ -68,17 +69,17 @@ const Login = () => {
           />
           <button type="submit">Login</button>
         </form>
-        <ToastContainer 
-  position="top-right" 
-  autoClose={3000} 
-  hideProgressBar={false} 
-  newestOnTop={false} 
-  closeOnClick 
-  pauseOnFocusLoss={false} 
-  draggable 
-  pauseOnHover 
-  theme="colored" 
-/>
+        <ToastContainer
+          position="top-right"
+          autoClose={3000}
+          hideProgressBar={false}
+          newestOnTop={false}
+          closeOnClick
+          pauseOnFocusLoss={false}
+          draggable
+          pauseOnHover
+          theme="colored"
+        />
 
         <p>
           Don't have an account? <Link to="/">Sign up</Link>
