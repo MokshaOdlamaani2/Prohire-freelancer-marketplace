@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import socket from "../socket"; // 👈 import socket instance
+import socket from "../socket";
 import { formatDistanceToNow } from "date-fns";
 import "../styles/pagesstyle.css";
 
@@ -57,7 +57,6 @@ const NotificationsPage = () => {
     }
   };
 
-  // NEW: Clear all notifications
   const clearAllNotifications = async () => {
     if (!window.confirm("Are you sure you want to clear all notifications?")) return;
 
@@ -76,12 +75,12 @@ const NotificationsPage = () => {
     fetchNotifications();
   }, [skip]);
 
-  // Real-time notifications listener
+  // Socket.io setup
   useEffect(() => {
     const userId = localStorage.getItem("userId");
     if (!userId) return;
 
-    socket.emit("join", userId); // Join room
+    socket.emit("join", userId); // Join user's notification room
 
     socket.on("new_notification", (notification) => {
       setNotifications((prev) => [notification, ...prev]);
@@ -99,13 +98,7 @@ const NotificationsPage = () => {
       <main className="notifications-page">
         <h1>
           🔔 Your Notifications{" "}
-          {hasUnread && (
-            <span
-              className="notification-badge"
-              aria-label="You have unread notifications"
-              title="You have unread notifications"
-            />
-          )}
+          {hasUnread && <span className="notification-badge" title="Unread notifications" />}
         </h1>
 
         <div className="notification-controls">
