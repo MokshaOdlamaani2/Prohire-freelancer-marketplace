@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { toast } from "react-toastify";
 import "../styles/pagesstyle.css";
@@ -84,6 +84,14 @@ const PostProject = () => {
     }
   };
 
+  // ✅ Auto-hide success message after 5 seconds
+  useEffect(() => {
+    if (success) {
+      const timer = setTimeout(() => setSuccess(false), 5000);
+      return () => clearTimeout(timer);
+    }
+  }, [success]);
+
   return (
     <div className="postproject-overlay">
       <div className="postproject-wrapper">
@@ -142,7 +150,15 @@ const PostProject = () => {
 
           {/* ✅ Success Message */}
           {success && (
-            <p className="success-message" style={{ marginTop: "1rem", color: "green" }}>
+            <p
+              className="success-message"
+              style={{
+                marginTop: "1rem",
+                color: "green",
+                fontSize: "0.875rem",
+                transition: "opacity 0.5s ease-in-out",
+              }}
+            >
               ✅ Project posted successfully! You can view it in your dashboard.
             </p>
           )}

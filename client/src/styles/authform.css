@@ -106,3 +106,39 @@ body {
 .Toastify__toast-container {
   font-size: 0.9rem;
 }
+/* === Responsive Auth Form (Mobile) === */
+@media (max-width: 480px) {
+  .form-wrapper {
+    padding: 1rem;
+    align-items: flex-start; /* allows space above the form */
+    height: auto;
+    min-height: 100vh;
+  }
+
+  .form-container {
+    width: 100%;
+    padding: 2rem 1.25rem;
+    border-radius: 16px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+  }
+
+  .form-container h2 {
+    font-size: 1.5rem;
+  }
+
+  .form-container input,
+  .form-container button {
+    font-size: 1rem;
+    padding: 0.9rem;
+  }
+
+  .form-container p {
+    font-size: 0.85rem;
+  }
+
+  .Toastify__toast-container {
+    width: 90%;
+    left: 5%;
+    right: 5%;
+  }
+}

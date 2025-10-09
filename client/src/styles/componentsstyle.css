@@ -230,61 +230,6 @@ text-align: center;
 .btn-green:hover {
   background-color: #128000;
 }
-/* Proposal Form Container */
-.proposal-form {
-  display: flex;
-  flex-direction: column;
-  gap: 1.2rem;
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  color: #333;
-}
-
-/* Label Styles */
-.proposal-form label {
-  font-weight: 600;
-  margin-bottom: 0.3rem;
-  display: block;
-  font-size: 0.95rem;
-  color: #374151;
-}
-
-/* Input Fields */
-.proposal-form input[type="url"],
-.proposal-form input[type="text"] {
-  width: 100%;
-  padding: 0.6rem 0.9rem;
-  border: 1.5px solid #d1d5db; /* light gray border */
-  border-radius: 6px;
-  font-size: 1rem;
-  transition: border-color 0.3s ease, box-shadow 0.3s ease;
-}
-
-.proposal-form input[type="url"]:focus,
-.proposal-form input[type="text"]:focus {
-  border-color: #14a800; /* green focus */
-  box-shadow: 0 0 6px #a1c95988;
-  outline: none;
-}
-
-/* Submit Button */
-.proposal-form button[type="submit"] {
-  background-color: #14a800;
-  color: white;
-  padding: 0.65rem 1.2rem;
-  border: none;
-  border-radius: 8px;
-  font-weight: 600;
-  font-size: 1rem;
-  cursor: pointer;
-  transition: background-color 0.3s ease;
-  align-self: flex-start;
-  box-shadow: 0 2px 6px rgba(20, 168, 0, 0.3);
-}
-
-.proposal-form button[type="submit"]:hover {
-  background-color: #128000;
-}
-
 /* Responsive tweaks */
 @media (max-width: 480px) {
   .proposal-form {
@@ -337,6 +282,69 @@ margin-top: 30%;
   display: block;
   margin-bottom: 0.3rem;
 }
+.proposal-form {
+  max-width: 700px;        /* wider form container */
+  margin: 2rem auto;
+  padding: 2.5rem 3rem;
+  background-color: #fff;
+  border-radius: 12px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
+  font-size: 1.1rem;
+}
+
+.proposal-form div {
+  margin-bottom: 1.8rem;
+}
+
+.proposal-form label {
+  display: block;
+  margin-bottom: 0.6rem;
+  font-weight: 600;
+  color: #111827;
+  font-size: 1.05rem;
+}
+
+.proposal-form input[type="url"],
+.proposal-form input[type="text"] {
+  width: 100%;
+  height: 48px;                  /* increased height */
+  padding: 0 1.25rem;            /* horizontal padding */
+  font-size: 1.1rem;
+  border: 1.5px solid #d1d5db;
+  border-radius: 10px;
+  box-sizing: border-box;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.proposal-form input[type="url"]:focus,
+.proposal-form input[type="text"]:focus {
+  outline: none;
+  border-color: #14a800;
+  box-shadow: 0 0 6px rgba(20, 168, 0, 0.3);
+}
+
+.proposal-form button[type="submit"] {
+  width: 100%;
+  height: 52px;                 /* bigger button height */
+  font-size: 1.15rem;
+  font-weight: 700;
+  background-color: #14a800;
+  color: white;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: background-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.proposal-form button[type="submit"]:hover:not(:disabled) {
+  background-color: #128000;
+  box-shadow: 0 4px 12px rgba(18, 128, 0, 0.35);
+}
+
+.proposal-form button[type="submit"]:disabled {
+  background-color: #9ca3af;
+  cursor: not-allowed;
+}
 
 .review-form,
 .proposal-form {
@@ -380,4 +388,156 @@ margin-top: 30%;
   border: none;
   border-radius: 6px;
   cursor: pointer;
+}
+/* === Mobile Responsive Tweaks (max-width: 480px) === */
+@media (max-width: 480px) {
+  .upwork-navbar {
+    padding: 0 1rem;
+    height: 56px;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+
+  .logo {
+    font-size: 1.4rem;
+  }
+
+  .nav-section-right {
+    flex-wrap: wrap;
+    gap: 0.6rem;
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .freelancer-welcome {
+    margin-top: 20%;
+    padding: 1.5rem 1rem;
+    width: 95vw;
+  }
+
+  .freelancer-welcome h2 {
+    font-size: 1.8rem;
+  }
+
+  .freelancer-welcome p {
+    font-size: 1.1rem;
+  }
+
+  .freelancer-dashboard-container {
+    padding: 1rem;
+    margin: 1rem auto;
+  }
+
+  .proposal-form,
+  .review-form {
+    padding: 1.5rem 1rem;
+    margin: 1rem auto;
+  }
+
+  .proposal-form input[type="url"],
+  .proposal-form input[type="text"],
+  .proposal-form button[type="submit"],
+  .review-form textarea,
+  .review-form select {
+    font-size: 1rem;
+  }
+
+  .success-message {
+    font-size: 2.2rem;
+    padding: 0.5rem;
+  }
+
+  .dropdown-menu {
+    width: 150px;
+    right: 0.5rem;
+  }
+
+  .nav-link {
+    font-size: 0.85rem;
+    padding: 4px 8px;
+  }
+
+  .dropdown-item {
+    font-size: 0.9rem;
+    padding: 0.5rem 0.8rem;
+  }
+
+  .user-name {
+    font-size: 0.85rem;
+  }
+
+  .proposal-form label {
+    font-size: 1rem;
+  }
+
+  .btn-blue,
+  .btn-green {
+    padding: 0.5rem 1rem;
+    font-size: 0.95rem;
+  }
+}
+/* Hamburger menu button */
+.mobile-menu-toggle {
+  display: none; /* hide on desktop */
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #14a800;
+}
+
+/* For mobile screens */
+@media (max-width: 768px) {
+  .mobile-menu-toggle {
+    display: block;
+  }
+
+  /* Hide nav links by default */
+  .nav-section-right {
+    position: fixed;
+    top: 64px; /* below navbar */
+    right: 0;
+    background: white;
+    width: 250px;
+    height: calc(100vh - 64px);
+    transform: translateX(100%);
+    transition: transform 0.3s ease;
+    box-shadow: -3px 0 12px rgba(0,0,0,0.1);
+    flex-direction: column;
+    padding: 1rem;
+    gap: 1rem;
+    z-index: 999;
+  }
+
+  /* Show nav links when open */
+  .nav-section-right.open {
+    transform: translateX(0);
+  }
+
+  /* Stack nav links vertically */
+  .nav-links {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  /* Adjust nav-link style for mobile */
+  .nav-link {
+    padding: 10px 0;
+    font-size: 1.1rem;
+  }
+
+  /* Adjust user-dropdown for mobile */
+  .user-dropdown {
+    margin-top: auto;
+    border-top: 1px solid #e6e6e6;
+    padding-top: 1rem;
+  }
+}
+
+/* On smaller devices, keep navbar height consistent */
+@media (max-width: 480px) {
+  .upwork-navbar {
+    height: 56px;
+  }
 }

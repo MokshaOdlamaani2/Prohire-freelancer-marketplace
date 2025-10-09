@@ -204,3 +204,77 @@ textarea {
   justify-content: flex-end;
   margin-top: 1.5rem;
 }
+/* === Additional Mobile Responsive Styles === */
+@media (max-width: 480px) {
+  .dashboard-page {
+    padding: 1.5rem 1rem;
+  }
+
+  .dashboard-header h1 {
+    font-size: 1.8rem;
+    text-align: center;
+  }
+
+  .search-filter {
+    flex-direction: column;
+    gap: 1rem;
+    align-items: stretch;
+  }
+
+  .search-filter input,
+  .search-filter select {
+    width: 100%;
+    font-size: 1rem;
+  }
+
+  .grid-projects {
+    grid-template-columns: 1fr;
+    gap: 2rem;
+    margin-top: 1.5rem;
+  }
+
+  .project-card {
+    padding: 1.25rem;
+  }
+
+  .project-card h3 {
+    font-size: 1.2rem;
+  }
+
+  .project-card p {
+    font-size: 0.95rem;
+  }
+
+  .card-actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .btn-green,
+  .btn-red,
+  .btn-slate {
+    width: 100%;
+    font-size: 1rem;
+    padding: 0.75rem 1rem;
+  }
+
+  .modal-grid {
+    padding: 1.5rem;
+    width: 95%;
+  }
+
+  .form-actions {
+    flex-direction: column;
+    gap: 0.75rem;
+    align-items: stretch;
+  }
+
+  .form-actions button {
+    width: 100%;
+  }
+
+  .success-message {
+    font-size: 2.5rem;
+    padding: 0.5rem;
+  }
+}

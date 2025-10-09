@@ -16,9 +16,9 @@ const FreelancerDashboard = () => {
 
   return (
     <div className="freelancer-dashboard-container">
-      <h2>Welcome back, {firstName}!</h2>
+      <h2>Welcome  {firstName}!</h2>
       <p>
-        Ready to take on your next project? Browse opportunities or check your dashboard for updates.
+        Ready to take on your new project? Browse opportunities or check your dashboard for updates.
       </p>
     </div>
   );

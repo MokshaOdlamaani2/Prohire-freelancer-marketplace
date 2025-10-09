@@ -73,3 +73,32 @@ img {
   max-width: 100%;
   display: block;
 }
+/* ===== Responsive (Mobile First) ===== */
+@media (max-width: 768px) {
+  .app-wrapper {
+    padding: 12px;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-size: 1.25rem; /* Adjust as needed */
+    margin-bottom: 0.75rem;
+  }
+
+  p {
+    font-size: 1rem;
+    margin-bottom: 0.75rem;
+  }
+
+  input, select, textarea {
+    font-size: 1rem;
+    width: 100%;
+  }
+
+  button {
+    width: 100%;
+    padding: 0.75rem;
+    font-size: 1rem;
+  }
+
+  
+}

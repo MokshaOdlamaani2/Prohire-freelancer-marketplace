@@ -1,9 +1,8 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo } from "react";
+import { useNavigate } from "react-router-dom";
 import axios from "axios";
-import ProposalForm from "../components/ProposalForm";
 import "../styles/pagesstylef.css";
 
-// Helper to break array into chunks of 3
 const chunkArray = (arr, size) => {
   const chunks = [];
   for (let i = 0; i < arr.length; i += size) {
@@ -14,73 +13,35 @@ const chunkArray = (arr, size) => {
 
 const BrowseProjects = () => {
   const [projects, setProjects] = useState([]);
-  const [applyingProjectId, setApplyingProjectId] = useState(null);
-  const [message, setMessage] = useState("");
+  const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
 
   useEffect(() => {
-    const fetchProjects = async () => {
-      try {
-        const res = await axios.get("/api/projects/");
-        setProjects(res.data.data || res.data);
-      } catch (err) {
-        console.error("Failed to fetch projects:", err);
-      }
-    };
-    fetchProjects();
+    axios
+      .get("/api/projects/")
+      .then((res) => setProjects(res.data.data || res.data))
+      .catch((err) => console.error("Failed to fetch projects:", err))
+      .finally(() => setLoading(false));
   }, []);
 
-  // Prevent page scroll when modal is open
-  useEffect(() => {
-    if (applyingProjectId) {
-      document.body.style.overflow = "hidden";
-    } else {
-      document.body.style.overflow = "auto";
-    }
-  }, [applyingProjectId]);
+  const projectRows = useMemo(() => chunkArray(projects, 3), [projects]);
 
   const handleApplyClick = (projectId) => {
-    setApplyingProjectId(projectId);
-    setMessage("");
+    navigate(`/proposal-form?projectId=${projectId}`);
   };
-
-  const handleSubmitProposal = async ({ contactInfo, portfolioLink }) => {
-    try {
-      const token = localStorage.getItem("token");
-      if (!token) {
-        setMessage("❌ You must be logged in to apply.");
-        return;
-      }
-
-      await axios.post(
-        `/api/projects/${applyingProjectId}/apply`,
-        { contactInfo, portfolioLink },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-      setMessage("✅ Application submitted successfully!");
-      setApplyingProjectId(null);
-    } catch (err) {
-      console.error("Failed to submit proposal", err);
-      setMessage("❌ Failed to submit application. Try again.");
-    }
-  };
-
-  const projectRows = chunkArray(projects, 3);
 
   return (
     <div className="container">
       <h2 className="section-heading">Available Projects</h2>
 
-      {message && <p className="alert-info">{message}</p>}
-
-      {projects.length === 0 ? (
+      {loading ? (
+        <p>⏳ Loading projects...</p>
+      ) : projects.length === 0 ? (
         <p>No projects available right now.</p>
       ) : (
         <>
-          <table className="projects-table">
+          {/* Desktop Table */}
+          <table className="projects-table desktop-only">
             <tbody>
               {projectRows.map((row, rowIndex) => (
                 <tr key={rowIndex}>
@@ -96,7 +57,6 @@ const BrowseProjects = () => {
                           <strong>Deadline:</strong>{" "}
                           {new Date(project.deadline).toLocaleDateString()}
                         </p>
-
                         <button
                           className="btn-primary"
                           onClick={() => handleApplyClick(project._id)}
@@ -111,22 +71,28 @@ const BrowseProjects = () => {
             </tbody>
           </table>
 
-          {/* Modal with proposal form */}
-          {applyingProjectId && (
-            <div className="modal-overlay">
-              <div className="modal-card">
+          {/* Mobile Stack */}
+          <div className="projects-mobile mobile-only">
+            {projects.map((project) => (
+              <div key={project._id} className="project-card">
+                <h3>{project.title}</h3>
+                <p>{project.description?.slice(0, 100)}...</p>
+                <p>
+                  <strong>Budget:</strong> ₹{project.budget}
+                </p>
+                <p>
+                  <strong>Deadline:</strong>{" "}
+                  {new Date(project.deadline).toLocaleDateString()}
+                </p>
                 <button
-                  className="modal-close"
-                  aria-label="Close proposal form"
-                  onClick={() => setApplyingProjectId(null)}
+                  className="btn-primary"
+                  onClick={() => handleApplyClick(project._id)}
                 >
-                  &times;
+                  Apply Now
                 </button>
-                <h3>Submit Your Proposal</h3>
-                <ProposalForm onSubmit={handleSubmitProposal} />
               </div>
-            </div>
-          )}
+            ))}
+          </div>
         </>
       )}
     </div>

@@ -21,27 +21,27 @@ import NotificationsPage from "./pages/NotificationPage";
 
 // Dashboards
 import ClientDashboard from "./dashboards/ClientDashboard";
-import FreelancerDashboard from "./dashboards/FreelancerDashboard"; // <-- Import added
+import FreelancerDashboard from "./dashboards/FreelancerDashboard";
 
 // Components
 import Navbar from "./components/Navbar";
+const ProposalFormPage = React.lazy(() => import("./pages/ProposalFormPage"));
 
 import "./App.css";
 
-// ✅ Protected route wrapper
+
+// ✅ Role-based route protection
 const ProtectedRoute = ({ children, role }) => {
   const user = JSON.parse(localStorage.getItem("user"));
-
   if (!user) return <Navigate to="/login" replace />;
   if (role && user.role !== role) return <Navigate to="/login" replace />;
-
   return children;
 };
 
 function AppContent() {
   const location = useLocation();
 
-  // ✅ Hide Navbar on Register and Login pages only
+  // Hide Navbar on Register and Login pages only
   const hideNavbarRoutes = ["/", "/login"];
   const hideNavbar = hideNavbarRoutes.includes(location.pathname);
 
@@ -52,21 +52,13 @@ function AppContent() {
   return (
     <>
       {!hideNavbar && <Navbar />}
+
       <Routes>
         {/* Public Routes */}
         <Route path="/" element={<Register />} />
         <Route path="/login" element={<Login />} />
 
-        {/* Project Routes */}
-        <Route
-          path="/post-project"
-          element={
-            <ProtectedRoute role="client">
-              <PostProject />
-            </ProtectedRoute>
-          }
-        />
-
+        {/* Freelancer Routes */}
         <Route
           path="/projects"
           element={
@@ -75,27 +67,16 @@ function AppContent() {
             </ProtectedRoute>
           }
         />
-
         <Route
-          path="/project/:id"
+          path="/proposal-form"
           element={
-            <ProtectedRoute>
-              <ProjectDetails />
+            <ProtectedRoute role="freelancer">
+              <Suspense fallback={<div>Loading Proposal Form...</div>}>
+                <ProposalFormPage />
+              </Suspense>
             </ProtectedRoute>
           }
         />
-
-        <Route
-          path="/projects/:projectId/applicants"
-          element={
-            <ProtectedRoute role="client">
-              <ProjectApplicants />
-            </ProtectedRoute>
-          }
-        />
-
-        {/* Freelancer Pages */}
-        {/* New Freelancer Dashboard Route */}
         <Route
           path="/freelancer-dashboard"
           element={
@@ -105,17 +86,31 @@ function AppContent() {
           }
         />
 
-        {/* Notifications Page */}
+        {/* Client Routes */}
         <Route
-          path="/notifications"
+          path="/post-project"
           element={
-            <ProtectedRoute>
-              <NotificationsPage />
+            <ProtectedRoute role="client">
+              <PostProject />
             </ProtectedRoute>
           }
         />
-
-        {/* Applicants List for Clients */}
+        <Route
+          path="/client-dashboard"
+          element={
+            <ProtectedRoute role="client">
+              <ClientDashboard />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/projects/:projectId/applicants"
+          element={
+            <ProtectedRoute role="client">
+              <ProjectApplicants />
+            </ProtectedRoute>
+          }
+        />
         <Route
           path="/client/applicants"
           element={
@@ -125,17 +120,25 @@ function AppContent() {
           }
         />
 
-        {/* Client Dashboard (modal can be triggered inside this page) */}
+        {/* Shared Routes */}
         <Route
-          path="/client-dashboard"
+          path="/project/:id"
           element={
-            <ProtectedRoute role="client">
-              <ClientDashboard />
+            <ProtectedRoute>
+              <ProjectDetails />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/notifications"
+          element={
+            <ProtectedRoute>
+              <NotificationsPage />
             </ProtectedRoute>
           }
         />
 
-        {/* Fallback 404 */}
+        {/* 404 Fallback */}
         <Route
           path="*"
           element={

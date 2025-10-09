@@ -67,12 +67,13 @@ body, html {
 .notifications-page {
   width: 100%;
   max-width: 1400px;
-  margin: 25px auto;
-  padding: 2rem 3rem;
+  margin: 60px auto 25px; /* 👈 Increased top margin */
+  padding: 3rem 3rem 2rem; /* 👈 Optional: More padding-top */
   font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
   color: #374151;
   border-radius: 16px;
 }
+
 
 .notifications-page h1 {
   font-size: 1.8rem;
@@ -610,4 +611,164 @@ body, html {
 
 .btn-secondary:hover {
   background-color: #d1d5db;
+}
+/* ------------------------- */
+/* 🌐 Responsive CSS Updates */
+/* ------------------------- */
+@media screen and (max-width: 768px) {
+  /* --- General Container --- */
+  .container {
+    padding: 1rem;
+    margin: 4rem auto 2rem;
+  }
+
+  /* --- Headings --- */
+  .heading {
+    font-size: 1.5rem;
+    padding-bottom: 0.3rem;
+    margin-bottom: 1rem;
+    text-align: center;
+  }
+
+  /* --- Project Grid --- */
+  .project-grid-container {
+    grid-template-columns: 1fr;
+    padding: 1rem 0.5rem;
+    gap: 2rem;
+  }
+
+  .project-cardf {
+    padding: 1rem;
+  }
+
+  .project-cardf h2 {
+    font-size: 1.4rem;
+  }
+
+  /* --- Applicant List --- */
+  .applicant-item {
+    padding: 0.75rem 1rem;
+    font-size: 0.95rem;
+  }
+
+  .applicant-toggle-button {
+    font-size: 1rem;
+  }
+
+  .status-btn {
+    width: 100%;
+    margin-bottom: 0.5rem;
+  }
+
+  .btn-view {
+    display: block;
+    width: 100%;
+    text-align: center;
+    margin-top: 0.75rem;
+  }
+
+  .btn-secondary {
+    width: 100%;
+    text-align: center;
+  }
+}
+
+/* Notifications Responsive */
+@media screen and (max-width: 600px) {
+   
+  .notifications-page {
+    margin: 80px 1rem 1.5rem; /* 👈 More margin-top on mobile */
+    padding: 2rem 1rem;
+  }
+
+  .notification-card {
+    padding: 1rem 1rem;
+  }
+
+
+
+
+  .notification-controls {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    align-items: stretch;
+  }
+
+  .mark-all-btn,
+  .clear-all-btn {
+    width: 100%;
+    font-size: 0.95rem;
+    padding: 0.6rem;
+  }
+
+  .notification-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.25rem;
+  }
+
+  .timestamp {
+    font-size: 0.85rem;
+  }
+
+  .mark-read-btn {
+    width: 100%;
+    font-size: 0.9rem;
+  }
+}
+
+/* Post Project / Register Page */
+@media screen and (max-width: 768px) {
+  .register-container {
+    flex-direction: column;
+    padding: 2rem 1rem;
+  }
+
+  .postproject-card {
+    width: 100%;
+    padding: 1.2rem;
+  }
+
+  .form-title {
+    font-size: 1.5rem;
+  }
+
+  .additional-banners {
+    flex-direction: column;
+    padding: 1rem;
+  }
+
+  .banner-info {
+    margin: 1rem 0;
+    padding: 1rem;
+  }
+
+  .btn-primary {
+    font-size: 1rem;
+    padding: 0.6rem;
+  }
+}
+
+/* Font scaling for very small screens */
+@media screen and (max-width: 400px) {
+  body, html {
+    font-size: 14px;
+  }
+
+  .btn-primary,
+  .status-btn,
+  .mark-read-btn,
+  .mark-all-btn,
+  .clear-all-btn {
+    font-size: 0.9rem;
+  }
+
+  .heading {
+    font-size: 1.3rem;
+  }
+
+  .project-cardf h2 {
+    font-size: 1.2rem;
+  }
 }
