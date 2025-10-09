@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
-import "../styles/componentsStyle.css";
+import "../styles/componentsstyle.css";
+
 
 const FreelancerDashboard = () => {
   const [name, setName] = useState("");

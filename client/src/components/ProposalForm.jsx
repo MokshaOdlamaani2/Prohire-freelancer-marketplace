@@ -1,5 +1,6 @@
 import React, { useState } from "react";
-import "../styles/componentsStyle.css";
+import "../styles/componentsstyle.css";
+
 
 const ProposalForm = ({ onSubmit, submitting }) => {
   const [portfolioLink, setPortfolioLink] = useState("");

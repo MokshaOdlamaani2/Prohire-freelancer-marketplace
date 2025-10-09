@@ -3,7 +3,8 @@ import { Link, useNavigate, useLocation } from "react-router-dom";
 import { User, Bell, Menu, X } from "lucide-react";
 import axios from "axios";
 import { io } from "socket.io-client";
-import "../styles/componentsStyle.css";
+import "../styles/componentsstyle.css";
+
 
 const socket = io("http://localhost:5000");
 
