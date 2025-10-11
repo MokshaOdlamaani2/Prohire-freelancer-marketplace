@@ -7,7 +7,7 @@ const authMiddleware = require("../middleware/authMiddleware");
 
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-// Helper: generate JWT
+// 🔒 Helper: generate JWT
 const generateToken = (user) => {
   return jwt.sign(
     { id: user._id, name: user.name, role: user.role },
@@ -16,13 +16,20 @@ const generateToken = (user) => {
   );
 };
 
-/// Update helper to accept a custom status code
-const sendTokenResponse = (res, token, user, statusCode = 200, isProd = process.env.NODE_ENV === "production") => {
+// ✅ Updated cookie options for production-safe setup
+const sendTokenResponse = (
+  res,
+  token,
+  user,
+  statusCode = 200
+) => {
+  const isProd = process.env.NODE_ENV === "production";
+
   res
     .cookie("token", token, {
       httpOnly: true,
-      secure: isProd,
-      sameSite: "strict",
+      secure: isProd, // only HTTPS in production
+      sameSite: isProd ? "none" : "lax", // allow cross-site cookies on HTTPS
       maxAge: 24 * 60 * 60 * 1000, // 1 day
     })
     .status(statusCode)
@@ -38,7 +45,7 @@ const sendTokenResponse = (res, token, user, statusCode = 200, isProd = process.
     });
 };
 
-// ✅ Updated /register route
+// ✅ Register route
 router.post("/register", async (req, res) => {
   const { name, email, password, role } = req.body;
 
@@ -73,7 +80,7 @@ router.post("/register", async (req, res) => {
   }
 });
 
-// ✅ Login route without rate limiter
+// ✅ Login route
 router.post("/login", async (req, res) => {
   const { email, password } = req.body;
 
@@ -82,7 +89,6 @@ router.post("/login", async (req, res) => {
   }
 
   try {
-    // Select password explicitly
     const user = await User.findOne({ email }).select("+password");
     if (!user) {
       return res.status(401).json({ error: "Invalid credentials" });

@@ -1,5 +1,10 @@
-// ...imports remain the same
-import { useNavigate } from "react-router-dom";
+// src/pages/ProjectDetails.jsx
+import React, { useEffect, useState } from "react";
+import { useParams, useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
+import api from "../api";
+import ProposalForm from "../components/ProposalForm"; // adjust path if needed
+import "../styles/pagesstyle.css";
 
 const ProjectDetails = () => {
   const { id } = useParams();
@@ -14,7 +19,7 @@ const ProjectDetails = () => {
     setError(null);
     setProject(null);
 
-    axios
+    api
       .get(`/api/projects/${id}`)
       .then((res) => {
         setProject(res.data.data);
@@ -35,7 +40,7 @@ const ProjectDetails = () => {
     }
 
     try {
-      await axios.post(
+      await api.post(
         `/api/projects/${id}/apply`,
         { portfolioLink, contactInfo },
         { headers: { Authorization: `Bearer ${token}` } }
@@ -67,16 +72,14 @@ const ProjectDetails = () => {
         <span className="budget-tag">💰 Budget: ₹{project.budget ?? "N/A"}</span>
         <span className="project-deadline">
           🕒 Deadline:{" "}
-          {project.deadline
-            ? new Date(project.deadline).toLocaleDateString()
-            : "Flexible"}
+          {project.deadline ? new Date(project.deadline).toLocaleDateString() : "Flexible"}
         </span>
       </div>
 
       {!submitted ? (
         <>
           <h3 className="section-subtitle">Submit Your Proposal</h3>
-          <ProposalForm onSubmit={handleProposalSubmit} disabled={submitted} />
+          <ProposalForm onSubmit={handleProposalSubmit} submitting={false} />
         </>
       ) : (
         <p className="success-message">

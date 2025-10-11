@@ -1,96 +1,79 @@
-const express = require("express");
-const mongoose = require("mongoose");
-const cors = require("cors");
-const dotenv = require("dotenv");
-const morgan = require("morgan");
-const http = require("http");
-const { Server } = require("socket.io");
+// server.js
+import express from "express";
+import dotenv from "dotenv";
+import cors from "cors";
+import http from "http";
+import { Server } from "socket.io";
+import mongoose from "mongoose";
+import cookieParser from "cookie-parser";
+import authRoutes from "./routes/authRoutes.js";
+import projectRoutes from "./routes/project.js";
+import notificationRoutes from "./routes/notificationsRoutes.js";
 
-// Load environment variables
 dotenv.config();
-
-// Initialize Express app
 const app = express();
-
-// Create HTTP server to attach Socket.IO
 const server = http.createServer(app);
 
-// Initialize Socket.IO with CORS configuration
-const io = new Server(server, {
-  cors: {
-    origin: ["http://localhost:5173", "http://localhost:3000"], // Adjust as needed
-    methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
-    allowedHeaders: ["Content-Type", "Authorization"],
-    credentials: true,
-  },
-});
-
-// Optionally make Socket.IO globally accessible (useful in older code)
-global.io = io;
-
-// Handle Socket.IO events
-io.on("connection", (socket) => {
-  console.log("🟢 A user connected");
-
-  socket.on("join", (userId) => {
-    console.log(`👤 User ${userId} joined room`);
-    socket.join(userId); // Each user joins their own private room
-  });
-
-  socket.on("disconnect", () => {
-    console.log("🔴 A user disconnected");
-  });
-});
-
-// Middleware
-app.use(express.json());
-app.use(morgan("dev"));
+// ✅ CORS Configuration (Dynamic for production)
+const allowedOrigins = [
+  "http://localhost:5173",
+  "http://localhost:3000",
+  process.env.FRONTEND_URL, // deployed frontend (e.g., Vercel / Netlify)
+];
 
 const corsOptions = {
-  origin: ["http://localhost:5173", "http://localhost:3000"],
-  methods: "GET,POST,PUT,DELETE,PATCH",
-  allowedHeaders: "Content-Type, Authorization",
+  origin: allowedOrigins,
+  methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
+  allowedHeaders: ["Content-Type", "Authorization"],
   credentials: true,
 };
 app.use(cors(corsOptions));
 
-// ✅ Attach io instance to req for route-level use
-app.use((req, res, next) => {
-  req.io = io;
-  next();
-});
+// Middleware
+app.use(express.json());
+app.use(cookieParser());
 
-// Route imports
-const authRoutes = require("./routes/authRoutes");
-const projectRoutes = require("./routes/project");
-const notificationsRoutes = require("./routes/notificationsRoutes");
-
-// Mount routes
-app.use("/api/auth", authRoutes);
-app.use("/api/projects", projectRoutes);
-app.use("/api/notifications", notificationsRoutes);
-
-// Global error handler
-app.use((err, req, res, next) => {
-  console.error("❌ Error:", err.stack);
-  res.status(err.status || 500).json({
-    success: false,
-    message: err.message || "Internal Server Error",
-  });
-});
-
-// Connect to MongoDB and start server
-const PORT = process.env.PORT || 5000;
-
+// ✅ MongoDB Atlas Connection (replace with your URI)
 mongoose
   .connect(process.env.MONGO_URI, {
     useNewUrlParser: true,
     useUnifiedTopology: true,
   })
-  .then(() => {
-    console.log("✅ MongoDB connected");
-    server.listen(PORT, () =>
-      console.log(`🚀 Server with Socket.IO running on port ${PORT}`)
-    );
-  })
+  .then(() => console.log("✅ MongoDB connected successfully"))
   .catch((err) => console.error("❌ MongoDB connection error:", err));
+
+// ✅ Socket.IO Configuration (for production + localhost)
+const io = new Server(server, {
+  cors: {
+    origin: [
+      process.env.FRONTEND_URL,
+      "http://localhost:5173",
+      "http://localhost:3000",
+    ],
+    methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
+    credentials: true,
+  },
+});
+
+io.on("connection", (socket) => {
+  console.log("🟢 User connected:", socket.id);
+
+  socket.on("disconnect", () => {
+    console.log("🔴 User disconnected:", socket.id);
+  });
+});
+
+// Routes
+app.use("/api/auth", authRoutes);
+app.use("/api/projects", projectRoutes);
+app.use("/api/notifications", notificationRoutes);
+
+app.get("/", (req, res) => {
+  res.send("🚀 Backend is running successfully!");
+});
+
+// Start server
+const PORT = process.env.PORT || 5000;
+server.listen(PORT, () => {
+  console.log(`✅ Server running on port ${PORT}`);
+});

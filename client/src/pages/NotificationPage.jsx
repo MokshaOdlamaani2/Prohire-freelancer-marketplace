@@ -1,5 +1,6 @@
-import React, { useState, useEffect } from "react";
-import axios from "axios";
+// src/pages/NotificationPage.jsx
+import React, { useEffect, useState } from "react";
+import api from "../api";
 import socket from "../socket";
 import { formatDistanceToNow } from "date-fns";
 import "../styles/pagesstyle.css";
@@ -7,14 +8,14 @@ import "../styles/pagesstyle.css";
 const NotificationsPage = () => {
   const [notifications, setNotifications] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [skip,] = useState(0);
+  const [skip] = useState(0);
   const limit = 20;
 
   const fetchNotifications = async () => {
     setLoading(true);
     try {
       const token = localStorage.getItem("token");
-      const res = await axios.get(`/api/notifications?limit=${limit}&skip=${skip}`, {
+      const res = await api.get(`/api/notifications?limit=${limit}&skip=${skip}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       setNotifications(res.data.data || []);
@@ -28,7 +29,7 @@ const NotificationsPage = () => {
   const markAsRead = async (id) => {
     try {
       const token = localStorage.getItem("token");
-      await axios.patch(`/api/notifications/${id}/read`, {}, {
+      await api.patch(`/api/notifications/${id}/read`, {}, {
         headers: { Authorization: `Bearer ${token}` },
       });
 
@@ -45,7 +46,7 @@ const NotificationsPage = () => {
   const markAllAsRead = async () => {
     try {
       const token = localStorage.getItem("token");
-      await axios.patch("/api/notifications/mark-all-read", {}, {
+      await api.patch("/api/notifications/mark-all-read", {}, {
         headers: { Authorization: `Bearer ${token}` },
       });
 
@@ -62,7 +63,7 @@ const NotificationsPage = () => {
 
     try {
       const token = localStorage.getItem("token");
-      await axios.delete("/api/notifications/clear-all", {
+      await api.delete("/api/notifications/clear-all", {
         headers: { Authorization: `Bearer ${token}` },
       });
       setNotifications([]);
@@ -73,6 +74,7 @@ const NotificationsPage = () => {
 
   useEffect(() => {
     fetchNotifications();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [skip]);
 
   // Socket.io setup

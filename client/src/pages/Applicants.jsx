@@ -1,8 +1,10 @@
+// src/pages/Applicants.jsx
 import React, { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
-import axios from "axios";
+import api from "../api";
 import { toast } from "react-toastify";
 import "../styles/pagesstyle.css";
+
 const ProjectApplicants = () => {
   const { projectId } = useParams();
   const [project, setProject] = useState(null);
@@ -11,7 +13,7 @@ const ProjectApplicants = () => {
   const fetchProjectDetails = async () => {
     try {
       const token = localStorage.getItem("token");
-      const response = await axios.get(`/api/projects/${projectId}`, {
+      const response = await api.get(`/api/projects/${projectId}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       setProject(response.data.data);
@@ -27,7 +29,7 @@ const ProjectApplicants = () => {
     try {
       const token = localStorage.getItem("token");
 
-      await axios.patch(
+      await api.patch(
         `/api/projects/${projectId}/applicants/${freelancerId}/status`,
         { status },
         { headers: { Authorization: `Bearer ${token}` } }
@@ -43,6 +45,7 @@ const ProjectApplicants = () => {
 
   useEffect(() => {
     fetchProjectDetails();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [projectId]);
 
   if (loading) return <p>Loading...</p>;
