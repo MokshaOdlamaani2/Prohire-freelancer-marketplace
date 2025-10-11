@@ -14,31 +14,37 @@ dotenv.config();
 const app = express();
 const server = http.createServer(app);
 
-// ✅ CORS Configuration (Dynamic for production)
+// ✅ CORS Configuration (Dynamic for production + Vercel previews)
 const allowedOrigins = [
   "http://localhost:5173",
   "http://localhost:3000",
-  process.env.FRONTEND_URL, // deployed frontend URL
-].filter(Boolean); // remove undefined if FRONTEND_URL not set
+  process.env.FRONTEND_URL, // main deployed frontend
+].filter(Boolean);
 
 const corsOptions = {
   origin: function (origin, callback) {
-    // allow requests with no origin (like mobile apps, Postman)
+    // allow requests with no origin (Postman, mobile apps)
     if (!origin) return callback(null, true);
-    if (allowedOrigins.includes(origin)) {
+
+    // Allow main frontend or any Vercel preview deployments
+    if (
+      allowedOrigins.includes(origin) ||
+      /^https:\/\/prohire-freelancer-marketplace(-.*)?\.vercel\.app$/.test(origin)
+    ) {
       return callback(null, true);
     } else {
-      return callback(
-        new Error("Not allowed by CORS: " + origin),
-        false
-      );
+      console.warn("Blocked by CORS:", origin);
+      return callback(new Error("Not allowed by CORS: " + origin), false);
     }
   },
-  methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
+  methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
   allowedHeaders: ["Content-Type", "Authorization"],
   credentials: true,
 };
 app.use(cors(corsOptions));
+
+// Handle preflight requests
+app.options("*", cors(corsOptions));
 
 // Middleware
 app.use(express.json());
