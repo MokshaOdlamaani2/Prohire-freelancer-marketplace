@@ -18,11 +18,22 @@ const server = http.createServer(app);
 const allowedOrigins = [
   "http://localhost:5173",
   "http://localhost:3000",
-  process.env.FRONTEND_URL, // deployed frontend (e.g., Vercel / Netlify)
-];
+  process.env.FRONTEND_URL, // deployed frontend URL
+].filter(Boolean); // remove undefined if FRONTEND_URL not set
 
 const corsOptions = {
-  origin: allowedOrigins,
+  origin: function (origin, callback) {
+    // allow requests with no origin (like mobile apps, Postman)
+    if (!origin) return callback(null, true);
+    if (allowedOrigins.includes(origin)) {
+      return callback(null, true);
+    } else {
+      return callback(
+        new Error("Not allowed by CORS: " + origin),
+        false
+      );
+    }
+  },
   methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
   allowedHeaders: ["Content-Type", "Authorization"],
   credentials: true,
@@ -33,7 +44,7 @@ app.use(cors(corsOptions));
 app.use(express.json());
 app.use(cookieParser());
 
-// ✅ MongoDB Atlas Connection (replace with your URI)
+// ✅ MongoDB Atlas Connection
 mongoose
   .connect(process.env.MONGO_URI, {
     useNewUrlParser: true,
@@ -42,14 +53,10 @@ mongoose
   .then(() => console.log("✅ MongoDB connected successfully"))
   .catch((err) => console.error("❌ MongoDB connection error:", err));
 
-// ✅ Socket.IO Configuration (for production + localhost)
+// ✅ Socket.IO Configuration
 const io = new Server(server, {
   cors: {
-    origin: [
-      process.env.FRONTEND_URL,
-      "http://localhost:5173",
-      "http://localhost:3000",
-    ],
+    origin: allowedOrigins,
     methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
     credentials: true,
   },
@@ -61,6 +68,12 @@ io.on("connection", (socket) => {
   socket.on("disconnect", () => {
     console.log("🔴 User disconnected:", socket.id);
   });
+});
+
+// Attach io instance to requests
+app.use((req, res, next) => {
+  req.io = io;
+  next();
 });
 
 // Routes
