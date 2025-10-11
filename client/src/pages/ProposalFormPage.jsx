@@ -1,3 +1,4 @@
+// src/pages/ProposalFormPage.jsx
 import React, { useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import ProposalForm from "../components/ProposalForm";
@@ -7,9 +8,7 @@ import "../styles/pagesstylef.css";
 const ProposalFormPage = () => {
   const navigate = useNavigate();
   const location = useLocation();
-
-  const queryParams = new URLSearchParams(location.search);
-  const projectId = queryParams.get("projectId");
+  const projectId = new URLSearchParams(location.search).get("projectId");
 
   const [message, setMessage] = useState("");
   const [submitting, setSubmitting] = useState(false);
@@ -37,7 +36,6 @@ const ProposalFormPage = () => {
       setMessage("✅ Proposal submitted successfully!");
       setTimeout(() => navigate("/projects"), 2000);
     } catch (err) {
-      console.error(err);
       setMessage("❌ Failed to submit proposal. Please try again.");
     } finally {
       setSubmitting(false);
@@ -47,11 +45,8 @@ const ProposalFormPage = () => {
   return (
     <div className="container">
       <h2>Submit Your Proposal</h2>
-
       {message && <p className="alert-info">{message}</p>}
-
       <ProposalForm onSubmit={handleSubmit} submitting={submitting} />
-
       <button className="btn-link" onClick={() => navigate("/projects")}>
         ← Back to Projects
       </button>

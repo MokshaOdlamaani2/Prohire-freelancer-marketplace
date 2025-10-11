@@ -1,55 +1,55 @@
-import React, { useEffect, useState } from "react";
-import axios from "axios";
-import { useParams } from "react-router-dom";
-import ProposalForm from "../components/ProposalForm";
-import { toast } from "react-toastify";
-import "../styles/pagesstyle.css";
+// ...imports remain the same
+import { useNavigate } from "react-router-dom";
 
 const ProjectDetails = () => {
   const { id } = useParams();
+  const navigate = useNavigate();
   const [project, setProject] = useState(null);
   const [error, setError] = useState(null);
   const [submitted, setSubmitted] = useState(false);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    setLoading(true);
     setError(null);
     setProject(null);
-    setLoading(true);
 
     axios
       .get(`/api/projects/${id}`)
       .then((res) => {
-        setProject(res.data.data); // Assumes backend sends { data: { ...project } }
-        setLoading(false);
+        setProject(res.data.data);
       })
       .catch(() => {
         setError("❌ Failed to fetch project. Please try again.");
-        setLoading(false);
-      });
+      })
+      .finally(() => setLoading(false));
   }, [id]);
 
   const handleProposalSubmit = async ({ portfolioLink, contactInfo }) => {
+    const token = localStorage.getItem("token");
+
+    if (!token) {
+      toast.error("You must be logged in to submit a proposal.");
+      navigate("/login");
+      return;
+    }
+
     try {
-      const token = localStorage.getItem("token");
-
-      if (!token) {
-        toast.error("You must be logged in to submit a proposal.");
-        return;
-      }
-
       await axios.post(
         `/api/projects/${id}/apply`,
         { portfolioLink, contactInfo },
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
+        { headers: { Authorization: `Bearer ${token}` } }
       );
 
       toast.success("✅ Proposal submitted!");
       setSubmitted(true);
     } catch (err) {
-      toast.error(err.response?.data?.message || "❌ Error submitting proposal");
+      if (err.response?.status === 401) {
+        toast.error("Session expired. Please log in again.");
+        navigate("/login");
+      } else {
+        toast.error(err.response?.data?.message || "❌ Error submitting proposal");
+      }
     }
   };
 
@@ -76,7 +76,7 @@ const ProjectDetails = () => {
       {!submitted ? (
         <>
           <h3 className="section-subtitle">Submit Your Proposal</h3>
-          <ProposalForm onSubmit={handleProposalSubmit} />
+          <ProposalForm onSubmit={handleProposalSubmit} disabled={submitted} />
         </>
       ) : (
         <p className="success-message">

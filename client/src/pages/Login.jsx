@@ -1,5 +1,6 @@
+// src/pages/Login.jsx
 import React, { useState } from "react";
-import api from "../api"; // import the axios instance
+import api from "../api";
 import { useNavigate, Link } from "react-router-dom";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -7,6 +8,7 @@ import "../styles/authform.css";
 
 const Login = () => {
   const [formData, setFormData] = useState({ email: "", password: "" });
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
   const handleChange = (e) =>
@@ -14,8 +16,8 @@ const Login = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setLoading(true);
     try {
-      // Use the api instance here (no hardcoded URL)
       const res = await api.post("/api/auth/login", formData);
 
       const userId = res.data.user._id || res.data.user.id;
@@ -41,6 +43,8 @@ const Login = () => {
       });
     } catch (err) {
       toast.error(err.response?.data?.error || "Login failed");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -67,20 +71,11 @@ const Login = () => {
             required
             autoComplete="current-password"
           />
-          <button type="submit">Login</button>
+          <button type="submit" disabled={loading}>
+            {loading ? "Logging in..." : "Login"}
+          </button>
         </form>
-        <ToastContainer
-          position="top-right"
-          autoClose={3000}
-          hideProgressBar={false}
-          newestOnTop={false}
-          closeOnClick
-          pauseOnFocusLoss={false}
-          draggable
-          pauseOnHover
-          theme="colored"
-        />
-
+        <ToastContainer position="top-right" autoClose={3000} />
         <p>
           Don't have an account? <Link to="/">Sign up</Link>
         </p>

@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from "react";
-import axios from "axios";
+import api from "../api"; // updated import
 import { toast } from "react-toastify";
 import debounce from "lodash.debounce";
 import "../styles/dashboardstyle.css";
@@ -52,7 +52,7 @@ const EditModal = ({ project, onClose, onUpdate, showMessage }) => {
     try {
       setSaving(true);
       const token = localStorage.getItem("token");
-      await axios.put(`/api/projects/${project._id}`, editProject, {
+      await api.put(`/api/projects/${project._id}`, editProject, {
         headers: { Authorization: `Bearer ${token}` },
       });
       toast.success("Project updated successfully");
@@ -108,7 +108,7 @@ const ClientDashboard = () => {
   const [filterStatus, setFilterStatus] = useState("");
   const [editProject, setEditProject] = useState(null);
   const [modalOpen, setModalOpen] = useState(false);
-  const [successMessage, setSuccessMessage] = useState(""); // ✅ New success message state
+  const [successMessage, setSuccessMessage] = useState("");
 
   useEffect(() => {
     fetchProjects();
@@ -116,14 +116,14 @@ const ClientDashboard = () => {
 
   const showMessage = (msg) => {
     setSuccessMessage(msg);
-    setTimeout(() => setSuccessMessage(""), 3000); // Auto-dismiss after 3 seconds
+    setTimeout(() => setSuccessMessage(""), 3000);
   };
 
   const fetchProjects = async () => {
     setLoading(true);
     try {
       const token = localStorage.getItem("token");
-      const res = await axios.get("/api/projects/my", {
+      const res = await api.get("/api/projects/my", {
         headers: { Authorization: `Bearer ${token}` },
       });
       setProjects(res.data.data || res.data);
@@ -152,7 +152,7 @@ const ClientDashboard = () => {
     if (!window.confirm("Are you sure you want to delete this project?")) return;
     try {
       const token = localStorage.getItem("token");
-      await axios.delete(`/api/projects/${id}`, {
+      await api.delete(`/api/projects/${id}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       toast.success("Project deleted successfully");
@@ -178,7 +178,6 @@ const ClientDashboard = () => {
         </div>
       </header>
 
-      {/* ✅ Success Message Display */}
       {successMessage && (
         <p className="success-message" style={{ color: "green", marginTop: "1rem" }}>
           {successMessage}
@@ -220,7 +219,7 @@ const ClientDashboard = () => {
           project={editProject}
           onClose={() => setModalOpen(false)}
           onUpdate={fetchProjects}
-          showMessage={showMessage} // ✅ pass to modal
+          showMessage={showMessage}
         />
       )}
     </main>

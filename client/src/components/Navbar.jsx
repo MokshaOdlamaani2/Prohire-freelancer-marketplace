@@ -1,16 +1,13 @@
 import React, { useEffect, useState, useRef } from "react";
-import { Link, useNavigate, useLocation } from "react-router-dom";
+import { Link, useNavigate} from "react-router-dom";
 import { User, Bell, Menu, X } from "lucide-react";
-import axios from "axios";
-import { io } from "socket.io-client";
+import api from "../api"; // ✅ updated
+import socket from "../socket"; // ✅ updated
 import "../styles/componentsstyle.css";
-
-
-const socket = io("http://localhost:5000");
 
 const Navbar = () => {
   const navigate = useNavigate();
-  const location = useLocation();
+
 
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -28,20 +25,20 @@ const Navbar = () => {
     if (storedUser) {
       const parsedUser = JSON.parse(storedUser);
       setUser(parsedUser);
-      socket.emit("join", userId);
+      socket.emit("join", userId); // ✅ using socket from socket.js
     }
 
     setLoading(false);
   }, []);
 
-  // Fetch unread notifications count on mount
+  // Fetch unread notifications
   useEffect(() => {
     let isMounted = true;
 
     const fetchUnread = async () => {
       try {
         const token = localStorage.getItem("token");
-        const res = await axios.get("/api/notifications", {
+        const res = await api.get("/api/notifications", {
           headers: { Authorization: `Bearer ${token}` },
         });
 
@@ -63,14 +60,14 @@ const Navbar = () => {
     };
   }, [user]);
 
-  // Listen for incoming notifications
+  // Listen to socket events
   useEffect(() => {
     socket.on("new_notification", () => {
       setUnreadCount((prev) => prev + 1);
     });
 
     socket.on("notification_read", () => {
-      setUnreadCount(0); // all notifications marked as read
+      setUnreadCount(0);
     });
 
     return () => {
@@ -79,14 +76,14 @@ const Navbar = () => {
     };
   }, []);
 
-  // Cleanup dropdown timeout
+  // Cleanup
   useEffect(() => {
     return () => clearTimeout(dropdownTimeout.current);
   }, []);
 
   const handleLogout = () => {
     localStorage.clear();
-    socket.disconnect();
+    socket.disconnect(); // ✅ disconnect socket
     navigate("/login");
   };
 
@@ -100,7 +97,6 @@ const Navbar = () => {
         ProHire
       </Link>
 
-      {/* Hamburger toggle for mobile */}
       <button
         className="mobile-menu-toggle"
         onClick={toggleMobileMenu}
@@ -109,35 +105,22 @@ const Navbar = () => {
         {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
       </button>
 
-      {/* Nav links container */}
       <div className={`nav-section-right ${mobileMenuOpen ? "open" : ""}`}>
         <div className="nav-links">
           {role === "client" && (
             <>
-              <Link to="/client-dashboard" className="nav-link">
-                Dashboard
-              </Link>
-              <Link to="/post-project" className="nav-link">
-                Post Project
-              </Link>
-              <Link to="/client/applicants" className="nav-link">
-                View Applicants
-              </Link>
+              <Link to="/client-dashboard" className="nav-link">Dashboard</Link>
+              <Link to="/post-project" className="nav-link">Post Project</Link>
+              <Link to="/client/applicants" className="nav-link">View Applicants</Link>
             </>
           )}
 
           {role === "freelancer" && (
-            <Link to="/projects" className="nav-link">
-              Browse Projects
-            </Link>
+            <Link to="/projects" className="nav-link">Browse Projects</Link>
           )}
         </div>
 
-        <Link
-          to="/notifications"
-          className="nav-link bell-icon"
-          aria-label="Notifications"
-        >
+        <Link to="/notifications" className="nav-link bell-icon" aria-label="Notifications">
           <Bell size={20} />
           {unreadCount > 0 && <span className="notif-dot" />}
         </Link>

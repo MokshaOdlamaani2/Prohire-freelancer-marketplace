@@ -7,7 +7,7 @@ import "../styles/pagesstyle.css";
 const NotificationsPage = () => {
   const [notifications, setNotifications] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [skip, setSkip] = useState(0);
+  const [skip,] = useState(0);
   const limit = 20;
 
   const fetchNotifications = async () => {

@@ -1,3 +1,4 @@
+// src/pages/PostProject.jsx
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { toast } from "react-toastify";
@@ -13,24 +14,17 @@ const PostProject = () => {
   });
 
   const [loading, setLoading] = useState(false);
-  const [success, setSuccess] = useState(false); // ✅ Success flag
+  const [success, setSuccess] = useState(false);
 
-  const handleChange = (e) => {
+  const handleChange = (e) =>
     setForm({ ...form, [e.target.name]: e.target.value });
-  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     const { title, description, budget, skillsRequired, deadline } = form;
 
-    if (
-      !title.trim() ||
-      !description.trim() ||
-      !budget ||
-      !skillsRequired.trim() ||
-      !deadline
-    ) {
+    if (!title || !description || !budget || !skillsRequired || !deadline) {
       toast.error("Please fill in all fields");
       return;
     }
@@ -44,15 +38,11 @@ const PostProject = () => {
       title: title.trim(),
       description: description.trim(),
       budget: Number(budget),
-      skillsRequired: skillsRequired
-        .split(",")
-        .map((s) => s.trim())
-        .filter(Boolean),
+      skillsRequired: skillsRequired.split(",").map((s) => s.trim()),
       deadline: new Date(deadline).toISOString(),
     };
 
     const token = localStorage.getItem("token");
-
     if (!token) {
       toast.error("You must be logged in as a client to post a project");
       return;
@@ -61,22 +51,12 @@ const PostProject = () => {
     try {
       setLoading(true);
       await axios.post("/api/projects", payload, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+        headers: { Authorization: `Bearer ${token}` },
       });
 
       toast.success("Project posted successfully!");
-      setSuccess(true); // ✅ Show success message
-
-      // Reset form
-      setForm({
-        title: "",
-        description: "",
-        budget: "",
-        skillsRequired: "",
-        deadline: "",
-      });
+      setSuccess(true);
+      setForm({ title: "", description: "", budget: "", skillsRequired: "", deadline: "" });
     } catch (err) {
       toast.error(err.response?.data?.message || "Something went wrong!");
     } finally {
@@ -84,7 +64,6 @@ const PostProject = () => {
     }
   };
 
-  // ✅ Auto-hide success message after 5 seconds
   useEffect(() => {
     if (success) {
       const timer = setTimeout(() => setSuccess(false), 5000);
@@ -97,10 +76,7 @@ const PostProject = () => {
       <div className="postproject-wrapper">
         <div className="postproject-card">
           <h2>Post a New Project</h2>
-          <p className="subtext">
-            Reach talented freelancers by posting your requirements.
-          </p>
-
+          <p className="subtext">Reach talented freelancers by posting your requirements.</p>
           <form onSubmit={handleSubmit} className="postproject-form">
             <input
               type="text"
@@ -108,7 +84,6 @@ const PostProject = () => {
               placeholder="Project Title"
               value={form.title}
               onChange={handleChange}
-              autoFocus
               required
             />
             <textarea
@@ -147,18 +122,8 @@ const PostProject = () => {
               {loading ? "Posting..." : "Post Project"}
             </button>
           </form>
-
-          {/* ✅ Success Message */}
           {success && (
-            <p
-              className="success-message"
-              style={{
-                marginTop: "1rem",
-                color: "green",
-                fontSize: "0.875rem",
-                transition: "opacity 0.5s ease-in-out",
-              }}
-            >
+            <p className="success-message" style={{ color: "green", marginTop: "1rem" }}>
               ✅ Project posted successfully! You can view it in your dashboard.
             </p>
           )}
