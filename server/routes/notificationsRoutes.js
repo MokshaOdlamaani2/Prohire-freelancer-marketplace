@@ -9,13 +9,11 @@ const sendResponse = (res, status, success, message, data = null) => {
   return res.status(status).json({ success, message, data });
 };
 
-// ✅ POST /api/notifications/send — Send a notification + emit via Socket.IO
+// ✅ POST /api/notifications/send
 router.post("/send", auth, async (req, res) => {
   try {
     const { content, receiverId } = req.body;
-    if (!content || !receiverId) {
-      return sendResponse(res, 400, false, "Content and receiverId required");
-    }
+    if (!content || !receiverId) return sendResponse(res, 400, false, "Content and receiverId required");
 
     const notification = new Notification({
       content,
@@ -25,17 +23,15 @@ router.post("/send", auth, async (req, res) => {
 
     await notification.save();
 
-    // Emit real-time notification
-    try {
-      req.io?.to(receiverId).emit("new_notification", {
+    // Emit via Socket.IO
+    if (req.io) {
+      req.io.to(receiverId).emit("new_notification", {
         _id: notification._id,
         content: notification.content,
         sender: { _id: req.user.id },
         receiver: receiverId,
         createdAt: notification.createdAt,
       });
-    } catch (socketErr) {
-      console.warn("⚠️ Socket emit failed:", socketErr.message);
     }
 
     sendResponse(res, 201, true, "Notification sent", notification);
@@ -45,7 +41,7 @@ router.post("/send", auth, async (req, res) => {
   }
 });
 
-// 📨 GET /api/notifications — Get user's notifications
+// 📨 GET /api/notifications
 router.get("/", auth, async (req, res) => {
   const limit = parseInt(req.query.limit) || 50;
   const skip = parseInt(req.query.skip) || 0;
@@ -63,7 +59,7 @@ router.get("/", auth, async (req, res) => {
   }
 });
 
-// ✅ PATCH /api/notifications/:id/read — Mark a single notification as read
+// ✅ PATCH /api/notifications/:id/read
 router.patch("/:id/read", auth, async (req, res) => {
   try {
     const notification = await Notification.findOneAndUpdate(

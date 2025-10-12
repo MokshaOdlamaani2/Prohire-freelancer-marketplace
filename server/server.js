@@ -16,7 +16,7 @@ const app = express();
 const server = http.createServer(app);
 
 // ----------------------
-// ✅ CORS Configuration
+// CORS Configuration
 // ----------------------
 const FRONTEND_MAIN = process.env.FRONTEND_URL;
 const allowedOrigins = ["http://localhost:5173", "http://localhost:3000", FRONTEND_MAIN].filter(Boolean);
@@ -25,9 +25,7 @@ const vercelPreviewRegex = /^https:\/\/prohire-freelancer-marketplace(-.*)?\.ver
 const corsOptions = {
   origin(origin, callback) {
     if (!origin) return callback(null, true);
-    if (allowedOrigins.includes(origin) || vercelPreviewRegex.test(origin)) {
-      return callback(null, true);
-    }
+    if (allowedOrigins.includes(origin) || vercelPreviewRegex.test(origin)) return callback(null, true);
     console.warn("❌ Blocked by CORS:", origin);
     return callback(new Error("Not allowed by CORS: " + origin), false);
   },
@@ -44,7 +42,7 @@ app.use(express.json());
 app.use(cookieParser());
 
 // ----------------------
-// ✅ MongoDB
+// MongoDB
 // ----------------------
 mongoose
   .connect(process.env.MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true })
@@ -52,7 +50,7 @@ mongoose
   .catch((err) => console.error("❌ MongoDB connection error:", err));
 
 // ----------------------
-// ✅ Socket.IO
+// Socket.IO
 // ----------------------
 const io = new Server(server, {
   cors: {
@@ -68,26 +66,32 @@ const io = new Server(server, {
 
 io.on("connection", (socket) => {
   console.log("🟢 User connected:", socket.id);
-  socket.on("disconnect", () => console.log("🔴 User disconnected:", socket.id));
+  socket.on("disconnect", () => {
+    console.log("🔴 User disconnected:", socket.id);
+  });
 });
 
-// Attach io to req for routes
+// Attach io to req
 app.use((req, res, next) => {
   req.io = io;
   next();
 });
 
 // ----------------------
-// ✅ Routes
+// Routes
 // ----------------------
 app.use("/api/auth", authRoutes);
 app.use("/api/projects", projectRoutes);
 app.use("/api/notifications", notificationRoutes);
 
-app.get("/", (req, res) => res.send("🚀 Backend is running successfully!"));
+app.get("/", (req, res) => {
+  res.send("🚀 Backend is running successfully!");
+});
 
 // ----------------------
-// ✅ Start server
+// Start server
 // ----------------------
 const PORT = process.env.PORT || 5000;
-server.listen(PORT, () => console.log(`✅ Server running on port ${PORT}`));
+server.listen(PORT, () => {
+  console.log(`✅ Server running on port ${PORT}`);
+});
