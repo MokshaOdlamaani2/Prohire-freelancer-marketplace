@@ -105,11 +105,13 @@ router.put("/:id", auth, role(["client"]), async (req, res) => {
     if (project.client.toString() !== req.user.id) return sendResponse(res, 403, false, "Unauthorized");
     if (project.status !== Project.PROJECT_STATUSES.OPEN) return sendResponse(res, 400, false, "Only OPEN projects can be edited");
 
-    project.title = req.body.title;
-    project.description = req.body.description;
-    project.skillsRequired = req.body.skillsRequired;
-    project.budget = req.body.budget;
-    project.deadline = new Date(req.body.deadline);
+    Object.assign(project, {
+      title: req.body.title,
+      description: req.body.description,
+      skillsRequired: req.body.skillsRequired,
+      budget: req.body.budget,
+      deadline: new Date(req.body.deadline),
+    });
 
     await project.save();
     sendResponse(res, 200, true, "Project updated successfully", project);
@@ -125,11 +127,11 @@ router.put("/:id", auth, role(["client"]), async (req, res) => {
 router.patch("/:projectId/applicants/:freelancerId/status", auth, role(["client"]), async (req, res) => {
   const { projectId, freelancerId } = req.params;
   const { status } = req.body;
-
   const validStatuses = ["pending", "shortlisted", "hired", "rejected"];
-  if (!validStatuses.includes(status)) return sendResponse(res, 400, false, "Invalid status value");
 
-  if (!mongoose.Types.ObjectId.isValid(projectId) || !mongoose.Types.ObjectId.isValid(freelancerId)) return sendResponse(res, 400, false, "Invalid project or freelancer ID");
+  if (!validStatuses.includes(status)) return sendResponse(res, 400, false, "Invalid status value");
+  if (!mongoose.Types.ObjectId.isValid(projectId) || !mongoose.Types.ObjectId.isValid(freelancerId))
+    return sendResponse(res, 400, false, "Invalid project or freelancer ID");
 
   try {
     const project = await Project.findOne({ _id: projectId, "applications.freelancerId": freelancerId });
@@ -150,11 +152,13 @@ router.patch("/:projectId/applicants/:freelancerId/status", auth, role(["client"
 
     const updatedApplication = updatedProject.applications.find(app => app.freelancerId.toString() === freelancerId);
 
-    let content = status === "shortlisted" 
-      ? `🎉 You have been shortlisted for the project "${updatedProject.title}"`
-      : status === "hired"
-      ? `✅ You have been hired for the project "${updatedProject.title}"`
-      : `ℹ️ Your application status for "${updatedProject.title}" is now "${status}"`;
+    // Notification
+    let content =
+      status === "shortlisted"
+        ? `🎉 You have been shortlisted for "${updatedProject.title}"`
+        : status === "hired"
+        ? `✅ You have been hired for "${updatedProject.title}"`
+        : `ℹ️ Your application status for "${updatedProject.title}" is now "${status}"`;
 
     const notification = await Notification.create({
       sender: req.user.id,
@@ -162,14 +166,12 @@ router.patch("/:projectId/applicants/:freelancerId/status", auth, role(["client"
       content,
     });
 
-    if (req.io) {
-      req.io.to(freelancerId.toString()).emit("new_notification", { content, sender: req.user.id, timestamp: new Date() });
-    }
+    if (req.io) req.io.to(freelancerId.toString()).emit("new_notification", { content, sender: req.user.id, timestamp: new Date() });
 
-    return sendResponse(res, 200, true, "Applicant status updated and freelancer notified", updatedApplication);
+    sendResponse(res, 200, true, "Applicant status updated and freelancer notified", updatedApplication);
   } catch (err) {
-    console.error("🔥 Error during applicant status update:", err);
-    return sendResponse(res, 500, false, "Failed to update status and notify freelancer");
+    console.error("🔥 Error updating status:", err);
+    sendResponse(res, 500, false, "Failed to update applicant status");
   }
 });
 
@@ -188,7 +190,6 @@ router.patch("/:id/complete", auth, role(["freelancer"]), async (req, res) => {
 
     project.status = Project.PROJECT_STATUSES.COMPLETED;
     await project.save();
-
     sendResponse(res, 200, true, "Project marked as completed");
   } catch (err) {
     console.error("🔥 Error marking project completed:", err);
@@ -212,7 +213,6 @@ router.get("/", async (req, res) => {
   }
 });
 
-// Freelancer proposals
 router.get("/proposals/my", auth, role(["freelancer"]), async (req, res) => {
   try {
     const projects = await Project.find({ "applications.freelancerId": req.user.id })
@@ -221,13 +221,13 @@ router.get("/proposals/my", auth, role(["freelancer"]), async (req, res) => {
       .populate("assignedFreelancer", "name email");
 
     const proposals = projects.map(project => {
-      const myApplication = project.applications.find(app => app.freelancerId._id.toString() === req.user.id);
+      const myApp = project.applications.find(app => app.freelancerId._id.toString() === req.user.id);
       return {
         projectId: project._id,
         title: project.title,
         description: project.description,
-        status: myApplication.status,
-        appliedOn: myApplication.createdAt,
+        status: myApp.status,
+        appliedOn: myApp.createdAt,
         client: project.client,
       };
     });
@@ -239,7 +239,7 @@ router.get("/proposals/my", auth, role(["freelancer"]), async (req, res) => {
   }
 });
 
-// Get single project by ID
+// Get single project
 router.get("/:id", async (req, res) => {
   const { id } = req.params;
   if (!mongoose.Types.ObjectId.isValid(id)) return sendResponse(res, 400, false, "Invalid project ID");
@@ -258,7 +258,7 @@ router.get("/:id", async (req, res) => {
   }
 });
 
-// Admin: Fix missing application data
+// Admin: Fix missing applicant data
 router.patch("/fix-applicant-data", auth, role(["admin"]), async (req, res) => {
   try {
     const projects = await Project.find({ "applications.portfolioLink": { $exists: false } });
