@@ -1,4 +1,4 @@
-const mongoose = require("mongoose");
+import mongoose from "mongoose";
 
 const experienceSchema = new mongoose.Schema({
   role: { type: String, required: true },
@@ -18,27 +18,16 @@ const userSchema = new mongoose.Schema({
   name: { type: String, required: true, minlength: 3 },
   email: { type: String, required: true, unique: true, lowercase: true },
   password: { type: String, required: true, select: false },
-
-  role: {
-    type: String,
-    enum: ["client", "freelancer", "admin"],
-    required: true,
-  },
-
-  // Shared fields
+  role: { type: String, enum: ["client", "freelancer", "admin"], required: true },
   skills: { type: [String], default: [] },
   hourlyRate: { type: Number, min: 0 },
   profileBio: { type: String, maxlength: 500 },
-
-  portfolioLinks: { type: [String], default: [] }, // external links
+  portfolioLinks: { type: [String], default: [] },
   reviews: [{ type: mongoose.Schema.Types.ObjectId, ref: "Review", default: [] }],
-
-  // Freelancer-only fields (use only if role === freelancer)
   title: { type: String, minlength: 3 },
   bio: { type: String, maxlength: 1000 },
   experience: { type: [experienceSchema], default: [] },
   portfolio: { type: [portfolioSchema], default: [] },
-
 }, { timestamps: true });
 
-module.exports = mongoose.model("User", userSchema);
+export default mongoose.model("User", userSchema);

@@ -1,10 +1,10 @@
-const express = require("express");
-const router = express.Router();
-const bcrypt = require("bcryptjs");
-const jwt = require("jsonwebtoken");
-const User = require("../models/User");
-const authMiddleware = require("../middleware/authMiddleware");
+import express from "express";
+import bcrypt from "bcryptjs";
+import jwt from "jsonwebtoken";
+import User from "../models/User.js";
+import authMiddleware from "../middleware/authMiddleware.js";
 
+const router = express.Router();
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 // 🔒 Helper: generate JWT
@@ -16,21 +16,16 @@ const generateToken = (user) => {
   );
 };
 
-// ✅ Updated cookie options for production-safe setup
-const sendTokenResponse = (
-  res,
-  token,
-  user,
-  statusCode = 200
-) => {
+// ✅ Send token in cookie
+const sendTokenResponse = (res, token, user, statusCode = 200) => {
   const isProd = process.env.NODE_ENV === "production";
 
   res
     .cookie("token", token, {
       httpOnly: true,
-      secure: isProd, // only HTTPS in production
-      sameSite: isProd ? "none" : "lax", // allow cross-site cookies on HTTPS
-      maxAge: 24 * 60 * 60 * 1000, // 1 day
+      secure: isProd,
+      sameSite: isProd ? "none" : "lax",
+      maxAge: 24 * 60 * 60 * 1000,
     })
     .status(statusCode)
     .json({
@@ -45,32 +40,19 @@ const sendTokenResponse = (
     });
 };
 
-// ✅ Register route
+// ✅ Register
 router.post("/register", async (req, res) => {
   const { name, email, password, role } = req.body;
 
-  if (!name || !email || !password) {
-    return res.status(400).json({ error: "All fields are required" });
-  }
-
-  if (!emailRegex.test(email)) {
-    return res.status(400).json({ error: "Invalid email format" });
-  }
+  if (!name || !email || !password) return res.status(400).json({ error: "All fields are required" });
+  if (!emailRegex.test(email)) return res.status(400).json({ error: "Invalid email format" });
 
   try {
     const existingUser = await User.findOne({ email });
-    if (existingUser) {
-      return res.status(400).json({ error: "User already exists" });
-    }
+    if (existingUser) return res.status(400).json({ error: "User already exists" });
 
     const hashedPassword = await bcrypt.hash(password, 10);
-
-    const user = await User.create({
-      name,
-      email,
-      password: hashedPassword,
-      role: role || "client",
-    });
+    const user = await User.create({ name, email, password: hashedPassword, role: role || "client" });
 
     const token = generateToken(user);
     sendTokenResponse(res, token, user, 201);
@@ -80,24 +62,18 @@ router.post("/register", async (req, res) => {
   }
 });
 
-// ✅ Login route
+// ✅ Login
 router.post("/login", async (req, res) => {
   const { email, password } = req.body;
 
-  if (!email || !password) {
-    return res.status(400).json({ error: "Email and password are required" });
-  }
+  if (!email || !password) return res.status(400).json({ error: "Email and password required" });
 
   try {
     const user = await User.findOne({ email }).select("+password");
-    if (!user) {
-      return res.status(401).json({ error: "Invalid credentials" });
-    }
+    if (!user) return res.status(401).json({ error: "Invalid credentials" });
 
     const isMatch = await bcrypt.compare(password, user.password);
-    if (!isMatch) {
-      return res.status(401).json({ error: "Invalid credentials" });
-    }
+    if (!isMatch) return res.status(401).json({ error: "Invalid credentials" });
 
     const token = generateToken(user);
     sendTokenResponse(res, token, user);
@@ -107,4 +83,4 @@ router.post("/login", async (req, res) => {
   }
 });
 
-module.exports = router;
+export default router;

@@ -1,6 +1,4 @@
-              // middleware/roleMiddleware.js
-
-module.exports = function roleMiddleware(allowedRoles) {
+export default function roleMiddleware(allowedRoles) {
   return (req, res, next) => {
     try {
       if (!req.user || !allowedRoles.includes(req.user.role)) {
@@ -12,4 +10,4 @@ module.exports = function roleMiddleware(allowedRoles) {
       res.status(500).json({ error: "Internal authorization error" });
     }
   };
-};
+}

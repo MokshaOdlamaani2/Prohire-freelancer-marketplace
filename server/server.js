@@ -16,7 +16,7 @@ const app = express();
 const server = http.createServer(app);
 
 // ----------------------
-// CORS Configuration
+// CORS configuration
 // ----------------------
 const FRONTEND_MAIN = process.env.FRONTEND_URL;
 const allowedOrigins = ["http://localhost:5173", "http://localhost:3000", FRONTEND_MAIN].filter(Boolean);
@@ -26,7 +26,6 @@ const corsOptions = {
   origin(origin, callback) {
     if (!origin) return callback(null, true);
     if (allowedOrigins.includes(origin) || vercelPreviewRegex.test(origin)) return callback(null, true);
-    console.warn("❌ Blocked by CORS:", origin);
     return callback(new Error("Not allowed by CORS: " + origin), false);
   },
   methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
@@ -37,7 +36,9 @@ const corsOptions = {
 app.use(cors(corsOptions));
 app.options("*", cors(corsOptions));
 
-// Global middleware
+// ----------------------
+// Middlewares
+// ----------------------
 app.use(express.json());
 app.use(cookieParser());
 
@@ -66,9 +67,7 @@ const io = new Server(server, {
 
 io.on("connection", (socket) => {
   console.log("🟢 User connected:", socket.id);
-  socket.on("disconnect", () => {
-    console.log("🔴 User disconnected:", socket.id);
-  });
+  socket.on("disconnect", () => console.log("🔴 User disconnected:", socket.id));
 });
 
 // Attach io to req
@@ -92,6 +91,4 @@ app.get("/", (req, res) => {
 // Start server
 // ----------------------
 const PORT = process.env.PORT || 5000;
-server.listen(PORT, () => {
-  console.log(`✅ Server running on port ${PORT}`);
-});
+server.listen(PORT, () => console.log(`✅ Server running on port ${PORT}`));

@@ -1,14 +1,11 @@
-// middleware/authMiddleware.js
-const jwt = require("jsonwebtoken");
-const User = require("../models/User"); // <-- ensure this path is correct
+import jwt from "jsonwebtoken";
+import User from "../models/User.js";
 
 const authMiddleware = async (req, res, next) => {
   const authHeader = req.headers.authorization;
   const token = authHeader && authHeader.split(" ")[1];
 
-  if (!token) {
-    return res.status(401).json({ error: "Authorization token missing" });
-  }
+  if (!token) return res.status(401).json({ error: "Authorization token missing" });
 
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
@@ -17,10 +14,10 @@ const authMiddleware = async (req, res, next) => {
 
     let user = payload;
 
-    // If role is missing, fetch it
     if (!payload.role && userId) {
       const dbUser = await User.findById(userId).select("_id name email role");
       if (!dbUser) return res.status(401).json({ error: "User not found" });
+
       user = {
         id: dbUser._id.toString(),
         name: dbUser.name,
@@ -39,4 +36,4 @@ const authMiddleware = async (req, res, next) => {
   }
 };
 
-module.exports = authMiddleware;
+export default authMiddleware;
