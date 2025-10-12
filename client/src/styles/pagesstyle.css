@@ -684,6 +684,27 @@ body, html {
   .notification-card {
     padding: 1rem 1rem;
   }
+.toast {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  background-color: #323232;
+  color: white;
+  padding: 12px 20px;
+  border-radius: 8px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+  animation: slide-in 0.3s ease, fade-out 0.5s ease 2.5s forwards;
+  z-index: 9999;
+}
+
+@keyframes slide-in {
+  from { transform: translateX(100%); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
+}
+
+@keyframes fade-out {
+  to { opacity: 0; }
+}
 
 
 

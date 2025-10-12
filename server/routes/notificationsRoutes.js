@@ -1,23 +1,20 @@
-const express = require("express");
+import express from "express";
+import Notification from "../models/Notification.js";
+import auth from "../middleware/authMiddleware.js";
+
 const router = express.Router();
-const Notification = require("../models/Notification");
-const auth = require("../middleware/authMiddleware");
 
 // 🔧 Helper response formatter
 const sendResponse = (res, status, success, message, data = null) => {
   return res.status(status).json({ success, message, data });
 };
 
-// ✅ NEW: POST /api/notifications/send — Send a notification + emit via Socket.IO
+// ✅ POST /api/notifications/send — Send a notification + emit via Socket.IO
 router.post("/send", auth, async (req, res) => {
   try {
     const { content, receiverId } = req.body;
-
     if (!content || !receiverId) {
-      return res.status(400).json({
-        success: false,
-        message: "Content and receiverId required",
-      });
+      return sendResponse(res, 400, false, "Content and receiverId required");
     }
 
     const notification = new Notification({
@@ -28,15 +25,17 @@ router.post("/send", auth, async (req, res) => {
 
     await notification.save();
 
-    // Emit real-time notification via Socket.IO
-    if (req.io) {
-      req.io.to(receiverId).emit("new_notification", {
+    // Emit real-time notification
+    try {
+      req.io?.to(receiverId).emit("new_notification", {
         _id: notification._id,
         content: notification.content,
         sender: { _id: req.user.id },
         receiver: receiverId,
         createdAt: notification.createdAt,
       });
+    } catch (socketErr) {
+      console.warn("⚠️ Socket emit failed:", socketErr.message);
     }
 
     sendResponse(res, 201, true, "Notification sent", notification);
@@ -46,7 +45,7 @@ router.post("/send", auth, async (req, res) => {
   }
 });
 
-// 📨 GET /api/notifications — Get user's notifications (with optional pagination)
+// 📨 GET /api/notifications — Get user's notifications
 router.get("/", auth, async (req, res) => {
   const limit = parseInt(req.query.limit) || 50;
   const skip = parseInt(req.query.skip) || 0;
@@ -73,8 +72,7 @@ router.patch("/:id/read", auth, async (req, res) => {
       { new: true }
     );
 
-    if (!notification)
-      return sendResponse(res, 404, false, "Notification not found");
+    if (!notification) return sendResponse(res, 404, false, "Notification not found");
 
     sendResponse(res, 200, true, "Notification marked as read", notification);
   } catch (err) {
@@ -83,7 +81,7 @@ router.patch("/:id/read", auth, async (req, res) => {
   }
 });
 
-// ✅ PATCH /api/notifications/mark-all-read — Mark all user's notifications as read
+// ✅ PATCH /api/notifications/mark-all-read
 router.patch("/mark-all-read", auth, async (req, res) => {
   try {
     const result = await Notification.updateMany(
@@ -99,17 +97,18 @@ router.patch("/mark-all-read", auth, async (req, res) => {
     sendResponse(res, 500, false, "Failed to mark all as read");
   }
 });
-// DELETE /api/notifications/clear-all — Delete all user's notifications
+
+// ✅ DELETE /api/notifications/clear-all
 router.delete("/clear-all", auth, async (req, res) => {
   try {
     const result = await Notification.deleteMany({ receiver: req.user.id });
-    return sendResponse(res, 200, true, "All notifications cleared", {
+    sendResponse(res, 200, true, "All notifications cleared", {
       deletedCount: result.deletedCount,
     });
   } catch (err) {
     console.error("❌ Clear all notifications error:", err);
-    return sendResponse(res, 500, false, "Failed to clear notifications");
+    sendResponse(res, 500, false, "Failed to clear notifications");
   }
 });
 
-module.exports = router;
+export default router;

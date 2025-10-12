@@ -1,7 +1,8 @@
+// middleware/authMiddleware.js
 const jwt = require("jsonwebtoken");
+const User = require("../models/User"); // <-- ensure this path is correct
 
-const authMiddleware = (req, res, next) => {
-  // Extract token from Authorization header (format: "Bearer <token>")
+const authMiddleware = async (req, res, next) => {
   const authHeader = req.headers.authorization;
   const token = authHeader && authHeader.split(" ")[1];
 
@@ -10,18 +11,28 @@ const authMiddleware = (req, res, next) => {
   }
 
   try {
-    // Verify token with your JWT secret
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const payload = decoded.user || decoded;
+    const userId = payload.id || payload._id;
 
-    // Token payload could be { user: {...} } or direct user object
-    req.user = decoded.user || decoded;
+    let user = payload;
 
-    // Normalize ID: accept either id or _id
-    req.user.id = req.user.id || req.user._id;
+    // If role is missing, fetch it
+    if (!payload.role && userId) {
+      const dbUser = await User.findById(userId).select("_id name email role");
+      if (!dbUser) return res.status(401).json({ error: "User not found" });
+      user = {
+        id: dbUser._id.toString(),
+        name: dbUser.name,
+        email: dbUser.email,
+        role: dbUser.role,
+      };
+    } else {
+      user.id = user.id || user._id;
+    }
 
-    console.log("Auth user:", req.user);
-
-    next(); // proceed to next middleware or route handler
+    req.user = user;
+    next();
   } catch (err) {
     console.error("JWT error:", err.message);
     res.status(401).json({ error: "Invalid or expired token" });

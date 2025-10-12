@@ -1,3 +1,4 @@
+// routes/project.js
 const express = require("express");
 const mongoose = require("mongoose");
 const Joi = require("joi");
@@ -8,12 +9,10 @@ const Notification = require("../models/Notification");
 const auth = require("../middleware/authMiddleware");
 const role = require("../middleware/roleMiddleware");
 
-// Helper for consistent API responses
 const sendResponse = (res, status, success, message, data = null) => {
   res.status(status).json({ success, message, data });
 };
 
-// Validation schemas
 const projectSchema = Joi.object({
   title: Joi.string().min(5).required(),
   description: Joi.string().min(20).required(),
@@ -29,7 +28,6 @@ const applySchema = Joi.object({
 
 // --- CLIENT ROUTES ---
 
-// 🔍 Get projects created by logged-in client
 router.get("/my", auth, role(["client"]), async (req, res) => {
   try {
     const projects = await Project.find({ client: req.user.id })
@@ -43,7 +41,6 @@ router.get("/my", auth, role(["client"]), async (req, res) => {
   }
 });
 
-// ➕ Create new project
 router.post("/", auth, role(["client"]), async (req, res) => {
   const { error } = projectSchema.validate(req.body);
   if (error) return sendResponse(res, 400, false, error.details[0].message);
@@ -51,7 +48,7 @@ router.post("/", auth, role(["client"]), async (req, res) => {
   try {
     const project = new Project({
       ...req.body,
-      deadline: new Date(req.body.deadline), // ✅ Ensures Date is parsed explicitly
+      deadline: new Date(req.body.deadline),
       client: req.user.id,
       status: Project.PROJECT_STATUSES.OPEN,
     });
@@ -66,8 +63,6 @@ router.post("/", auth, role(["client"]), async (req, res) => {
   }
 });
 
-
-// ❌ Delete project
 router.delete("/:id", auth, role(["client"]), async (req, res) => {
   const { id } = req.params;
   if (!mongoose.Types.ObjectId.isValid(id))
@@ -89,9 +84,6 @@ router.delete("/:id", auth, role(["client"]), async (req, res) => {
   }
 });
 
-
-
-// === Existing PATCH route for updating applicant status ===
 router.patch(
   "/:projectId/applicants/:freelancerId/status",
   auth,
@@ -99,8 +91,6 @@ router.patch(
   async (req, res) => {
     const { projectId, freelancerId } = req.params;
     const { status } = req.body;
-
-    console.log("🔄 Updating status:", { projectId, freelancerId, status });
 
     if (
       !mongoose.Types.ObjectId.isValid(projectId) ||
@@ -115,41 +105,32 @@ router.patch(
     }
 
     try {
-      // Fetch the project with the matching application
       const project = await Project.findOne({
         _id: projectId,
         "applications.freelancerId": freelancerId,
       });
 
       if (!project) return sendResponse(res, 404, false, "Project or applicant not found");
-
       if (project.client.toString() !== req.user.id) {
         return sendResponse(res, 403, false, "Unauthorized");
       }
 
-      // Prepare update object
-      const updateFields = {
-        "applications.$.status": status,
-      };
-
+      const updateFields = { "applications.$.status": status };
       if (status === "hired") {
         updateFields.assignedFreelancer = freelancerId;
         updateFields.status = Project.PROJECT_STATUSES.IN_PROGRESS;
       }
 
-      // Update the project atomically
       const updatedProject = await Project.findOneAndUpdate(
         { _id: projectId, "applications.freelancerId": freelancerId },
         { $set: updateFields },
         { new: true, runValidators: true }
       );
 
-      // Find updated application to return
       const updatedApplication = updatedProject.applications.find(
         (app) => app.freelancerId.toString() === freelancerId
       );
 
-      // Create Notification content
       let content = "";
       if (status === "shortlisted") {
         content = `🎉 You have been shortlisted for the project "${updatedProject.title}"`;
@@ -159,18 +140,15 @@ router.patch(
         content = `ℹ️ Your application status for "${updatedProject.title}" is now "${status}"`;
       }
 
-      // Create notification
       const notification = await Notification.create({
         sender: req.user.id,
         receiver: freelancerId,
         content,
       });
 
-      console.log("✅ Notification created:", notification);
-
-      // Emit real-time notification via Socket.IO if available
-      if (global.io) {
-        global.io.to(freelancerId.toString()).emit("new_notification", {
+      // ✅ Emit via req.io (attached in server.js)
+      if (req.io) {
+        req.io.to(freelancerId.toString()).emit("new_notification", {
           content,
           sender: req.user.id,
           timestamp: new Date(),
@@ -191,59 +169,43 @@ router.patch(
   }
 );
 
-// === NEW: Admin-only route to fix inconsistent applicant data ===
-router.patch(
-  "/fix-applicant-data",
-  auth,
-  role(["admin"]), // Only admins can run this
-  async (req, res) => {
-    try {
-      // Fix missing portfolioLink and empty contactInfo, etc.
-      const projects = await Project.find({
-        "applications.portfolioLink": { $exists: false },
+// Admin fix route (unchanged)
+router.patch("/fix-applicant-data", auth, role(["admin"]), async (req, res) => {
+  try {
+    const projects = await Project.find({
+      "applications.portfolioLink": { $exists: false },
+    });
+
+    let fixedCount = 0;
+
+    for (const project of projects) {
+      let modified = false;
+
+      project.applications.forEach((app) => {
+        if (!app.portfolioLink || app.portfolioLink.trim() === "") {
+          app.portfolioLink = "https://default-portfolio-link.com";
+          modified = true;
+        }
+        if (!app.contactInfo || app.contactInfo.trim() === "") {
+          app.contactInfo = "No contact info provided";
+          modified = true;
+        }
       });
 
-      let fixedCount = 0;
-
-      for (const project of projects) {
-        let modified = false;
-
-        project.applications.forEach((app) => {
-          // Fix missing portfolioLink with placeholder if empty or missing
-          if (!app.portfolioLink || app.portfolioLink.trim() === "") {
-            app.portfolioLink = "https://default-portfolio-link.com";
-            modified = true;
-          }
-          // Fix empty contactInfo
-          if (!app.contactInfo || app.contactInfo.trim() === "") {
-            app.contactInfo = "No contact info provided";
-            modified = true;
-          }
-          // You can add more fixes here if needed
-        });
-
-        if (modified) {
-          await project.save();
-          fixedCount++;
-        }
+      if (modified) {
+        await project.save();
+        fixedCount++;
       }
-
-      return sendResponse(
-        res,
-        200,
-        true,
-        `Fixed applicant data in ${fixedCount} projects`
-      );
-    } catch (error) {
-      console.error("🔥 Error fixing applicant data:", error);
-      return sendResponse(res, 500, false, "Failed to fix applicant data");
     }
+
+    return sendResponse(res, 200, true, `Fixed applicant data in ${fixedCount} projects`);
+  } catch (error) {
+    console.error("🔥 Error fixing applicant data:", error);
+    return sendResponse(res, 500, false, "Failed to fix applicant data");
   }
-);
+});
 
-
-
-// Mark project as completed by assigned freelancer
+// Mark complete (unchanged)
 router.patch("/:id/complete", auth, role(["freelancer"]), async (req, res) => {
   const { id } = req.params;
 
@@ -275,52 +237,8 @@ router.patch("/:id/complete", auth, role(["freelancer"]), async (req, res) => {
   }
 });
 
-// --- FREELANCER ROUTES ---
-
-// 📨 Apply to a project
-router.post("/:id/apply", auth, role(["freelancer"]), async (req, res) => {
-  const { id } = req.params;
-  const { error } = applySchema.validate(req.body);
-  if (error) return sendResponse(res, 400, false, error.details[0].message);
-
-  if (!mongoose.Types.ObjectId.isValid(id))
-    return sendResponse(res, 400, false, "Invalid project ID");
-
-  try {
-    const project = await Project.findById(id).populate("client");
-    if (!project) return sendResponse(res, 404, false, "Project not found");
-    if (project.status !== Project.PROJECT_STATUSES.OPEN)
-      return sendResponse(res, 400, false, "Project not open");
-
-    if (project.applications.some((a) => a.freelancerId.toString() === req.user.id))
-      return sendResponse(res, 400, false, "Already applied");
-
-    project.applications.push({
-      freelancerId: req.user.id,
-      portfolioLink: req.body.portfolioLink.trim(),
-      contactInfo: req.body.contactInfo?.trim() || "",
-      status: "pending",
-    });
-
-    await project.save();
-
-    // Notify client
-    await Notification.create({
-      sender: req.user.id,
-      receiver: project.client._id,
-      content: `📨 ${req.user.name} applied to your project "${project.title}"`,
-    });
-
-    sendResponse(res, 200, true, "Application submitted");
-  } catch (err) {
-    console.error(err);
-    sendResponse(res, 500, false, "Application failed");
-  }
-});
-
 // --- PUBLIC ROUTES ---
 
-// 📃 Get all open projects
 router.get("/", async (req, res) => {
   try {
     const projects = await Project.find({ status: Project.PROJECT_STATUSES.OPEN })
@@ -333,7 +251,7 @@ router.get("/", async (req, res) => {
     sendResponse(res, 500, false, "Failed to fetch projects");
   }
 });
-// ✅ Freelancer's submitted proposals
+
 router.get("/proposals/my", auth, role(["freelancer"]), async (req, res) => {
   try {
     const projects = await Project.find({
@@ -343,7 +261,6 @@ router.get("/proposals/my", auth, role(["freelancer"]), async (req, res) => {
       .populate("applications.freelancerId", "name email")
       .populate("assignedFreelancer", "name email");
 
-    // Filter only the applications of the current freelancer
     const proposals = projects.map((project) => {
       const myApplication = project.applications.find(
         (app) => app.freelancerId._id.toString() === req.user.id
@@ -365,7 +282,6 @@ router.get("/proposals/my", auth, role(["freelancer"]), async (req, res) => {
   }
 });
 
-// 📄 Get project by ID
 router.get("/:id", async (req, res) => {
   const { id } = req.params;
   if (!mongoose.Types.ObjectId.isValid(id))
@@ -385,7 +301,7 @@ router.get("/:id", async (req, res) => {
     sendResponse(res, 500, false, "Failed to fetch project");
   }
 });
-// ✏️ Update project (Edit)
+
 router.put("/:id", auth, role(["client"]), async (req, res) => {
   const { id } = req.params;
   const { error } = projectSchema.validate(req.body);
@@ -405,7 +321,6 @@ router.put("/:id", auth, role(["client"]), async (req, res) => {
       return sendResponse(res, 400, false, "Only OPEN projects can be edited");
     }
 
-    // Update fields
     project.title = req.body.title;
     project.description = req.body.description;
     project.skillsRequired = req.body.skillsRequired;

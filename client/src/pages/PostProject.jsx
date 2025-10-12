@@ -1,6 +1,6 @@
 // src/pages/PostProject.jsx
 import React, { useState, useEffect } from "react";
-import axios from "axios";
+import api from "../api"; // ✅ Use your configured axios instance
 import { toast } from "react-toastify";
 import "../styles/pagesstyle.css";
 
@@ -16,14 +16,16 @@ const PostProject = () => {
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
 
-  const handleChange = (e) =>
+  const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     const { title, description, budget, skillsRequired, deadline } = form;
 
+    // ✅ Basic validation
     if (!title || !description || !budget || !skillsRequired || !deadline) {
       toast.error("Please fill in all fields");
       return;
@@ -50,20 +52,32 @@ const PostProject = () => {
 
     try {
       setLoading(true);
-      await axios.post("/api/projects", payload, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+
+      // ✅ Post project using configured API (which already includes baseURL)
+      await api.post("/api/projects", payload);
 
       toast.success("Project posted successfully!");
       setSuccess(true);
-      setForm({ title: "", description: "", budget: "", skillsRequired: "", deadline: "" });
+      setForm({
+        title: "",
+        description: "",
+        budget: "",
+        skillsRequired: "",
+        deadline: "",
+      });
     } catch (err) {
-      toast.error(err.response?.data?.message || "Something went wrong!");
+      console.error("❌ Error posting project:", err);
+      const message =
+        err.response?.data?.message ||
+        err.response?.data?.error ||
+        "Something went wrong!";
+      toast.error(message);
     } finally {
       setLoading(false);
     }
   };
 
+  // ✅ Reset success message after 5 seconds
   useEffect(() => {
     if (success) {
       const timer = setTimeout(() => setSuccess(false), 5000);
@@ -76,7 +90,10 @@ const PostProject = () => {
       <div className="postproject-wrapper">
         <div className="postproject-card">
           <h2>Post a New Project</h2>
-          <p className="subtext">Reach talented freelancers by posting your requirements.</p>
+          <p className="subtext">
+            Reach talented freelancers by posting your requirements.
+          </p>
+
           <form onSubmit={handleSubmit} className="postproject-form">
             <input
               type="text"
@@ -86,6 +103,7 @@ const PostProject = () => {
               onChange={handleChange}
               required
             />
+
             <textarea
               name="description"
               placeholder="Describe your project (max 300 characters)"
@@ -94,6 +112,7 @@ const PostProject = () => {
               maxLength={300}
               required
             />
+
             <input
               type="number"
               name="budget"
@@ -103,6 +122,7 @@ const PostProject = () => {
               min="1"
               required
             />
+
             <input
               type="text"
               name="skillsRequired"
@@ -111,6 +131,7 @@ const PostProject = () => {
               onChange={handleChange}
               required
             />
+
             <input
               type="date"
               name="deadline"
@@ -118,12 +139,17 @@ const PostProject = () => {
               onChange={handleChange}
               required
             />
+
             <button type="submit" disabled={loading}>
               {loading ? "Posting..." : "Post Project"}
             </button>
           </form>
+
           {success && (
-            <p className="success-message" style={{ color: "green", marginTop: "1rem" }}>
+            <p
+              className="success-message"
+              style={{ color: "green", marginTop: "1rem" }}
+            >
               ✅ Project posted successfully! You can view it in your dashboard.
             </p>
           )}

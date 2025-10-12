@@ -1,4 +1,3 @@
-// src/pages/NotificationPage.jsx
 import React, { useEffect, useState } from "react";
 import api from "../api";
 import socket from "../socket";
@@ -8,9 +7,11 @@ import "../styles/pagesstyle.css";
 const NotificationsPage = () => {
   const [notifications, setNotifications] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [toast, setToast] = useState(null); // For real-time toast
   const [skip] = useState(0);
   const limit = 20;
 
+  // Fetch notifications
   const fetchNotifications = async () => {
     setLoading(true);
     try {
@@ -26,41 +27,35 @@ const NotificationsPage = () => {
     }
   };
 
+  // Mark single notification as read
   const markAsRead = async (id) => {
     try {
       const token = localStorage.getItem("token");
       await api.patch(`/api/notifications/${id}/read`, {}, {
         headers: { Authorization: `Bearer ${token}` },
       });
-
-      setNotifications((prev) =>
-        prev.map((n) =>
-          n._id === id ? { ...n, isRead: true } : n
-        )
-      );
+      setNotifications((prev) => prev.map((n) => n._id === id ? { ...n, isRead: true } : n));
     } catch (err) {
       console.error("Failed to mark as read", err);
     }
   };
 
+  // Mark all as read
   const markAllAsRead = async () => {
     try {
       const token = localStorage.getItem("token");
       await api.patch("/api/notifications/mark-all-read", {}, {
         headers: { Authorization: `Bearer ${token}` },
       });
-
-      setNotifications((prev) =>
-        prev.map((n) => ({ ...n, isRead: true }))
-      );
+      setNotifications((prev) => prev.map((n) => ({ ...n, isRead: true })));
     } catch (err) {
       console.error("Failed to mark all as read", err);
     }
   };
 
+  // Clear all notifications
   const clearAllNotifications = async () => {
     if (!window.confirm("Are you sure you want to clear all notifications?")) return;
-
     try {
       const token = localStorage.getItem("token");
       await api.delete("/api/notifications/clear-all", {
@@ -72,20 +67,34 @@ const NotificationsPage = () => {
     }
   };
 
+  // ----------------------
+  // Fetch on mount
+  // ----------------------
   useEffect(() => {
     fetchNotifications();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [skip]);
 
-  // Socket.io setup
+  // ----------------------
+  // Socket.io real-time notifications
+  // ----------------------
   useEffect(() => {
     const userId = localStorage.getItem("userId");
     if (!userId) return;
 
-    socket.emit("join", userId); // Join user's notification room
+    socket.emit("join", userId); // Join user's room
 
     socket.on("new_notification", (notification) => {
       setNotifications((prev) => [notification, ...prev]);
+
+      // Show toast for real-time notification
+      setToast({
+        message: notification.content,
+        sender: notification.sender?.name || "System",
+      });
+
+      // Auto-hide after 3 seconds
+      setTimeout(() => setToast(null), 3000);
     });
 
     return () => {
@@ -104,10 +113,7 @@ const NotificationsPage = () => {
         </h1>
 
         <div className="notification-controls">
-          <button onClick={markAllAsRead} className="mark-all-btn">
-            Mark All as Read
-          </button>
-
+          <button onClick={markAllAsRead} className="mark-all-btn">Mark All as Read</button>
           <button
             onClick={clearAllNotifications}
             className="clear-all-btn"
@@ -148,6 +154,15 @@ const NotificationsPage = () => {
               </li>
             ))}
           </ul>
+        )}
+
+        {/* ---------------------- */}
+        {/* Real-time Toast */}
+        {/* ---------------------- */}
+        {toast && (
+          <div className="toast">
+            <strong>{toast.sender}: </strong>{toast.message}
+          </div>
         )}
       </main>
     </div>
