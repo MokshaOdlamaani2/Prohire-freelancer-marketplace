@@ -24,7 +24,7 @@ const vercelPreviewRegex = /^https:\/\/prohire-freelancer-marketplace(-.*)?\.ver
 
 const corsOptions = {
   origin(origin, callback) {
-    if (!origin) return callback(null, true);
+    if (!origin) return callback(null, true); // allow server-to-server requests
     if (allowedOrigins.includes(origin) || vercelPreviewRegex.test(origin)) return callback(null, true);
     return callback(new Error("Not allowed by CORS: " + origin), false);
   },
@@ -34,14 +34,14 @@ const corsOptions = {
 };
 
 app.use(cors(corsOptions));
-app.options("/*", cors(corsOptions)); // ✅ Express 5 fix for preflight requests
 app.use(express.json());
 app.use(cookieParser());
 
 // ----------------------
 // MongoDB Connection
 // ----------------------
-mongoose.connect(process.env.MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true })
+mongoose
+  .connect(process.env.MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true })
   .then(() => console.log("✅ MongoDB connected"))
   .catch(err => console.error("❌ MongoDB connection error:", err));
 
@@ -74,9 +74,9 @@ app.use("/api/notifications", notificationRoutes);
 app.get("/", (req, res) => res.send("🚀 Backend running successfully!"));
 
 // ----------------------
-// Catch-all Route (404)
+// Catch-all 404 Route (Express 5 compatible)
 // ----------------------
-app.all("/*", (req, res) => {
+app.use((req, res) => {
   res.status(404).json({ success: false, message: "Route not found" });
 });
 
