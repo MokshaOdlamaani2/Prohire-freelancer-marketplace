@@ -1,4 +1,3 @@
-// src/pages/Applicants.jsx
 import React, { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import api from "../api";
@@ -11,11 +10,9 @@ const ProjectApplicants = () => {
   const [loading, setLoading] = useState(true);
 
   const fetchProjectDetails = async () => {
+    setLoading(true);
     try {
-      const token = localStorage.getItem("token");
-      const response = await api.get(`/api/projects/${projectId}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const response = await api.get(`/projects/${projectId}`);
       setProject(response.data.data);
     } catch (err) {
       console.error(err);
@@ -27,14 +24,7 @@ const ProjectApplicants = () => {
 
   const handleStatusUpdate = async (freelancerId, status) => {
     try {
-      const token = localStorage.getItem("token");
-
-      await api.patch(
-        `/api/projects/${projectId}/applicants/${freelancerId}/status`,
-        { status },
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
-
+      await api.patch(`/projects/${projectId}/applicants/${freelancerId}/status`, { status });
       toast.success(`Applicant ${status}!`);
       fetchProjectDetails();
     } catch (err) {
@@ -45,7 +35,6 @@ const ProjectApplicants = () => {
 
   useEffect(() => {
     fetchProjectDetails();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [projectId]);
 
   if (loading) return <p>Loading...</p>;
@@ -56,65 +45,34 @@ const ProjectApplicants = () => {
       <h1 className="heading">Applicants for: {project.title}</h1>
       <p>{project.description}</p>
 
-      <p>
-        Status:{" "}
-        <span className={`status-badge ${project.status.toLowerCase()}`}>
-          {project.status}
-        </span>
-      </p>
+      <p>Status: <span className={`status-badge ${project.status.toLowerCase()}`}>{project.status}</span></p>
 
       {project.applications?.length > 0 ? (
         <ul className="applicant-list">
           {project.applications.map((app, index) => (
             <li key={index} className="applicant-item">
-              <Link
-                to={`/freelancer/${app.freelancerId?._id}`}
-                className="applicant-toggle-button"
-                style={{ fontWeight: "bold", fontSize: "1.1em" }}
-              >
+              <Link to={`/freelancer/${app.freelancerId?._id}`} style={{ fontWeight: "bold" }}>
                 {app.freelancerId?.name || "Unnamed Freelancer"}
               </Link>
-              <p>
-                <strong>Email:</strong> {app.freelancerId?.email || "N/A"}
-              </p>
+              <p><strong>Email:</strong> {app.freelancerId?.email || "N/A"}</p>
               <p>
                 <strong>Portfolio:</strong>{" "}
-                <a
-                  href={app.portfolioLink}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="applicant-portfolio-link"
-                >
-                  {app.portfolioLink}
-                </a>
+                <a href={app.portfolioLink} target="_blank" rel="noopener noreferrer">{app.portfolioLink}</a>
               </p>
-              {app.contactInfo && (
-                <p>
-                  <strong>Contact Info:</strong> {app.contactInfo}
-                </p>
-              )}
+              {app.contactInfo && <p><strong>Contact Info:</strong> {app.contactInfo}</p>}
               <p>
-                <strong>Status:</strong>{" "}
                 <button
                   disabled={app.status === "shortlisted"}
-                  onClick={() =>
-                    handleStatusUpdate(app.freelancerId._id, "shortlisted")
-                  }
-                  className={`status-btn ${
-                    app.status === "shortlisted" ? "btn-shortlisted" : "btn-default"
-                  }`}
+                  onClick={() => handleStatusUpdate(app.freelancerId._id, "shortlisted")}
+                  className={`status-btn ${app.status === "shortlisted" ? "btn-shortlisted" : "btn-default"}`}
                 >
                   Shortlist
                 </button>
 
                 <button
                   disabled={app.status === "hired"}
-                  onClick={() =>
-                    handleStatusUpdate(app.freelancerId._id, "hired")
-                  }
-                  className={`status-btn ${
-                    app.status === "hired" ? "btn-hired" : "btn-default"
-                  }`}
+                  onClick={() => handleStatusUpdate(app.freelancerId._id, "hired")}
+                  className={`status-btn ${app.status === "hired" ? "btn-hired" : "btn-default"}`}
                 >
                   Hire
                 </button>
@@ -126,9 +84,7 @@ const ProjectApplicants = () => {
         <p className="text-muted">No applicants yet.</p>
       )}
 
-      <Link to="/client-dashboard" className="btn-secondary">
-        ← Back to Dashboard
-      </Link>
+      <Link to="/client-dashboard" className="btn-secondary">← Back to Dashboard</Link>
     </div>
   );
 };

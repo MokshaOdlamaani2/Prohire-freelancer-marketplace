@@ -1,13 +1,12 @@
 import React, { useEffect, useState, useRef } from "react";
-import { Link, useNavigate} from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { User, Bell, Menu, X } from "lucide-react";
-import api from "../api"; // ✅ updated
-import socket from "../socket"; // ✅ updated
+import api from "../api";
+import socket from "../socket";
 import "../styles/componentsstyle.css";
 
 const Navbar = () => {
   const navigate = useNavigate();
-
 
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -18,6 +17,7 @@ const Navbar = () => {
 
   const toggleMobileMenu = () => setMobileMenuOpen((prev) => !prev);
 
+  // Load user and join socket room
   useEffect(() => {
     const storedUser = localStorage.getItem("user");
     const userId = localStorage.getItem("userId");
@@ -25,7 +25,7 @@ const Navbar = () => {
     if (storedUser) {
       const parsedUser = JSON.parse(storedUser);
       setUser(parsedUser);
-      socket.emit("join", userId); // ✅ using socket from socket.js
+      if (userId) socket.emit("join", userId);
     }
 
     setLoading(false);
@@ -33,12 +33,14 @@ const Navbar = () => {
 
   // Fetch unread notifications
   useEffect(() => {
+    if (!user) return;
+
     let isMounted = true;
 
     const fetchUnread = async () => {
       try {
         const token = localStorage.getItem("token");
-        const res = await api.get("/api/notifications", {
+        const res = await api.get("/notifications", {
           headers: { Authorization: `Bearer ${token}` },
         });
 
@@ -53,37 +55,35 @@ const Navbar = () => {
       }
     };
 
-    if (user) fetchUnread();
+    fetchUnread();
 
     return () => {
       isMounted = false;
     };
   }, [user]);
 
-  // Listen to socket events
+  // Real-time socket updates
   useEffect(() => {
-    socket.on("new_notification", () => {
-      setUnreadCount((prev) => prev + 1);
-    });
+    const handleNewNotification = () => setUnreadCount((prev) => prev + 1);
+    const handleNotificationsRead = () => setUnreadCount(0);
 
-    socket.on("notification_read", () => {
-      setUnreadCount(0);
-    });
+    socket.on("new_notification", handleNewNotification);
+    socket.on("notification_read", handleNotificationsRead);
 
     return () => {
-      socket.off("new_notification");
-      socket.off("notification_read");
+      socket.off("new_notification", handleNewNotification);
+      socket.off("notification_read", handleNotificationsRead);
     };
   }, []);
 
-  // Cleanup
+  // Cleanup dropdown timeout
   useEffect(() => {
     return () => clearTimeout(dropdownTimeout.current);
   }, []);
 
   const handleLogout = () => {
     localStorage.clear();
-    socket.disconnect(); // ✅ disconnect socket
+    socket.disconnect();
     navigate("/login");
   };
 
@@ -114,7 +114,6 @@ const Navbar = () => {
               <Link to="/client/applicants" className="nav-link">View Applicants</Link>
             </>
           )}
-
           {role === "freelancer" && (
             <Link to="/projects" className="nav-link">Browse Projects</Link>
           )}

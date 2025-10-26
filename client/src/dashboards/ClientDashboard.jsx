@@ -55,8 +55,7 @@ const EditModal = ({ project, onClose, onUpdate, showMessage }) => {
       await api.put(`/projects/${project._id}`, editProject, {
         headers: { Authorization: `Bearer ${token}` },
       });
-      toast.success("Project updated successfully");
-      showMessage("✅ Project updated successfully!");
+      showMessage("✅ Project updated successfully!"); // subtle inline message
       onUpdate();
       onClose();
     } catch (error) {
@@ -157,7 +156,7 @@ const ClientDashboard = () => {
 
   const showMessage = (msg) => {
     setSuccessMessage(msg);
-    setTimeout(() => setSuccessMessage(""), 3000);
+    setTimeout(() => setSuccessMessage(""), 2000); // faster subtle auto-hide
   };
 
   const fetchProjects = async () => {
@@ -201,8 +200,7 @@ const ClientDashboard = () => {
       await api.delete(`/projects/${id}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
-      toast.success("Project deleted successfully");
-      showMessage("🗑️ Project deleted successfully!");
+      showMessage("🗑️ Project deleted successfully!"); // subtle inline
       fetchProjects();
     } catch (err) {
       toast.error(err.message);
@@ -224,11 +222,7 @@ const ClientDashboard = () => {
         </div>
       </header>
 
-      {successMessage && (
-        <p className="success-message" style={{ color: "green", marginTop: "1rem" }}>
-          {successMessage}
-        </p>
-      )}
+      {successMessage && <p className="success-message">{successMessage}</p>}
 
       {loading ? (
         <p className="loading">Loading projects...</p>

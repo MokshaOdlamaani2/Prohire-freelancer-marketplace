@@ -1,13 +1,16 @@
 import React, { useState } from "react";
 import "../styles/componentsstyle.css";
 
-
 const ProposalForm = ({ onSubmit, submitting }) => {
   const [portfolioLink, setPortfolioLink] = useState("");
   const [contactInfo, setContactInfo] = useState("");
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    if (!portfolioLink) {
+      alert("Portfolio Link is required!");
+      return;
+    }
     onSubmit({ portfolioLink, contactInfo });
   };
 

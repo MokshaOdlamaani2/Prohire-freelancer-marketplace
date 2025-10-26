@@ -52,11 +52,13 @@
 }
 
 .success-message {
-  font-size: 5rem;
-  font-weight: 500;
-  color: green;
-text-align: center;
-  padding: 0.5rem 0;
+  color: #27632a;
+  font-size: 0.9rem;
+  margin-top: 0.5rem;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  background-color: #e6f4ea;
+  display: inline-block;
 }
 
 /* Individual card style */

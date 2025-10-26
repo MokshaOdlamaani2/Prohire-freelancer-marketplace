@@ -1,9 +1,9 @@
 import React, { useEffect, useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
-import api from "../api"; // Axios instance configured with baseURL
+import api from "../api"; // Axios instance with baseURL
 import "../styles/pagesstylef.css";
 
-// Utility: chunk an array into smaller arrays of given size
+// Utility: chunk an array into smaller arrays
 const chunkArray = (arr, size) => {
   const chunks = [];
   for (let i = 0; i < arr.length; i += size) {
@@ -20,9 +20,7 @@ const BrowseProjects = () => {
   useEffect(() => {
     const fetchProjects = async () => {
       try {
-        // ✅ Correct endpoint (no duplicate /api)
         const res = await api.get("/projects");
-
         console.log("✅ API response:", res.data);
 
         const data = res.data.data || [];
@@ -45,6 +43,11 @@ const BrowseProjects = () => {
   const projectRows = useMemo(() => chunkArray(projects, 3), [projects]);
 
   const handleApplyClick = (projectId) => {
+    if (!projectId) {
+      alert("❌ Project ID is missing. Cannot apply.");
+      return;
+    }
+    console.log("Navigating to proposal page for project:", projectId);
     navigate(`/proposal-form?projectId=${projectId}`);
   };
 

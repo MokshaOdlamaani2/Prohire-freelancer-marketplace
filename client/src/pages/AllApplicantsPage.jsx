@@ -1,4 +1,3 @@
-// src/pages/AllApplicantsPage.jsx
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import api from "../api";
@@ -13,11 +12,7 @@ const AllApplicantsPage = () => {
     const fetchProjects = async () => {
       setLoading(true);
       try {
-        const token = localStorage.getItem("token");
-        const res = await api.get("/api/projects/my", {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-
+        const res = await api.get("/projects/my"); // matches backend route
         const projectsWithToggle = (res.data.data || res.data).map((project) => ({
           ...project,
           applications:
@@ -26,7 +21,6 @@ const AllApplicantsPage = () => {
               _showProposal: false,
             })) || [],
         }));
-
         setProjects(projectsWithToggle);
       } catch (err) {
         setError("Failed to fetch projects.");
@@ -53,18 +47,18 @@ const AllApplicantsPage = () => {
 
   return (
     <div className="container">
-      <div className="project-grid-container">
-        {loading && <p>Loading...</p>}
-        {error && <p className="error-message">{error}</p>}
-        {!loading && projects.length === 0 && <p>No projects found.</p>}
+      {loading && <p>Loading...</p>}
+      {error && <p className="error-message">{error}</p>}
+      {!loading && projects.length === 0 && <p>No projects found.</p>}
 
+      <div className="project-grid-container">
         {projects.map((project) => (
           <div key={project._id} className="project-cardf">
             <h2>{project.title}</h2>
             <p>{project.description}</p>
             <p>💰 Budget: ₹{project.budget}</p>
             <p>
-              Status: <span className={`status-badge ${project.status}`}>{project.status}</span>
+              Status: <span className={`status-badge ${project.status.toLowerCase()}`}>{project.status}</span>
             </p>
 
             <Link to={`/projects/${project._id}/applicants`} className="btn-view">
@@ -77,10 +71,7 @@ const AllApplicantsPage = () => {
                   <li key={index} className="applicant-item">
                     <strong>
                       <button
-                        type="button"
                         onClick={() => toggleProposal(project._id, index)}
-                        className="applicant-toggle-button"
-                        aria-expanded={app._showProposal}
                         style={{
                           background: "none",
                           border: "none",
@@ -88,7 +79,6 @@ const AllApplicantsPage = () => {
                           cursor: "pointer",
                           fontWeight: "bold",
                           padding: 0,
-                          fontSize: "inherit",
                         }}
                       >
                         {app.freelancerId?.name || "Unnamed Freelancer"}
@@ -96,10 +86,8 @@ const AllApplicantsPage = () => {
                     </strong>
 
                     {app._showProposal && (
-                      <div className="proposal-details" style={{ marginTop: "6px", paddingLeft: "1em" }}>
-                        <p>
-                          <em>Proposal:</em> {app.proposalText}
-                        </p>
+                      <div style={{ marginTop: "6px", paddingLeft: "1em" }}>
+                        <p><em>Proposal:</em> {app.proposalText}</p>
                       </div>
                     )}
                   </li>
