@@ -1,15 +1,16 @@
-// src/api.js
 import axios from "axios";
 
-const fallback = "https://prohire-backend.onrender.com"; // <-- your Render backend
+const fallback = "https://prohire-backend.onrender.com"; // your deployed backend or local dev backend URL
+
 const baseURL =
-  import.meta.env.VITE_API_URL?.trim() ||
-  (import.meta.env.PROD ? fallback : "/");
+  (
+    import.meta.env.VITE_API_URL?.trim() ||
+    (import.meta.env.PROD ? fallback : "http://localhost:5000")
+  ) + "/api"; // <-- append "/api" here
 
 const api = axios.create({
   baseURL,
   headers: { "Content-Type": "application/json" },
-  // withCredentials: true, // enable if you ever switch to cookie auth
 });
 
 api.interceptors.request.use((config) => {

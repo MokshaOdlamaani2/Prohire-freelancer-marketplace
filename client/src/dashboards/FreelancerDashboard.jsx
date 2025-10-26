@@ -1,14 +1,15 @@
 import React, { useState, useEffect } from "react";
 import "../styles/componentsstyle.css";
 
-
 const FreelancerDashboard = () => {
   const [name, setName] = useState("");
 
   useEffect(() => {
     const storedUser = localStorage.getItem("user");
+    console.log("Stored user in FreelancerDashboard:", storedUser); // Debug log
     if (storedUser) {
       const parsedUser = JSON.parse(storedUser);
+      console.log("Parsed user object:", parsedUser); // Debug log
       setName(parsedUser.name || "");
     }
   }, []);
@@ -17,7 +18,7 @@ const FreelancerDashboard = () => {
 
   return (
     <div className="freelancer-dashboard-container">
-      <h2>Welcome  {firstName}!</h2>
+      <h2>Welcome {firstName}!</h2>
       <p>
         Ready to take on your new project? Browse opportunities or check your dashboard for updates.
       </p>

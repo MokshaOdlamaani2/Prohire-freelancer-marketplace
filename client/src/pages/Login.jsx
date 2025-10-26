@@ -1,4 +1,3 @@
-// src/pages/Login.jsx
 import React, { useState } from "react";
 import api from "../api";
 import { useNavigate, Link } from "react-router-dom";
@@ -18,7 +17,8 @@ const Login = () => {
     e.preventDefault();
     setLoading(true);
     try {
-      const res = await api.post("/api/auth/login", formData);
+      // ✅ Correct endpoint (no /api prefix)
+      const res = await api.post("/auth/login", formData);
 
       const userId = res.data.user._id || res.data.user.id;
       localStorage.setItem("userId", userId);
@@ -39,7 +39,6 @@ const Login = () => {
           );
         },
         autoClose: 1500,
-        pauseOnHover: false,
       });
     } catch (err) {
       toast.error(err.response?.data?.error || "Login failed");
@@ -60,7 +59,6 @@ const Login = () => {
             value={formData.email}
             onChange={handleChange}
             required
-            autoComplete="email"
           />
           <input
             name="password"
@@ -69,15 +67,15 @@ const Login = () => {
             value={formData.password}
             onChange={handleChange}
             required
-            autoComplete="current-password"
           />
           <button type="submit" disabled={loading}>
             {loading ? "Logging in..." : "Login"}
           </button>
         </form>
+
         <ToastContainer position="top-right" autoClose={3000} />
         <p>
-          Don't have an account? <Link to="/">Sign up</Link>
+          Don’t have an account? <Link to="/">Sign up</Link>
         </p>
       </div>
     </div>

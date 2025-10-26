@@ -1,8 +1,9 @@
 import React, { useEffect, useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
-import axios from "axios";
+import api from "../api"; // Axios instance configured with baseURL
 import "../styles/pagesstylef.css";
 
+// Utility: chunk an array into smaller arrays of given size
 const chunkArray = (arr, size) => {
   const chunks = [];
   for (let i = 0; i < arr.length; i += size) {
@@ -17,11 +18,28 @@ const BrowseProjects = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    axios
-      .get("/api/projects/")
-      .then((res) => setProjects(res.data.data || res.data))
-      .catch((err) => console.error("Failed to fetch projects:", err))
-      .finally(() => setLoading(false));
+    const fetchProjects = async () => {
+      try {
+        // ✅ Correct endpoint (no duplicate /api)
+        const res = await api.get("/projects");
+
+        console.log("✅ API response:", res.data);
+
+        const data = res.data.data || [];
+        if (Array.isArray(data)) setProjects(data);
+        else {
+          console.error("❌ Unexpected API format:", res.data);
+          setProjects([]);
+        }
+      } catch (err) {
+        console.error("🚨 Failed to fetch projects:", err);
+        setProjects([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchProjects();
   }, []);
 
   const projectRows = useMemo(() => chunkArray(projects, 3), [projects]);
@@ -40,7 +58,7 @@ const BrowseProjects = () => {
         <p>No projects available right now.</p>
       ) : (
         <>
-          {/* Desktop Table */}
+          {/* Desktop view */}
           <table className="projects-table desktop-only">
             <tbody>
               {projectRows.map((row, rowIndex) => (
@@ -71,7 +89,7 @@ const BrowseProjects = () => {
             </tbody>
           </table>
 
-          {/* Mobile Stack */}
+          {/* Mobile view */}
           <div className="projects-mobile mobile-only">
             {projects.map((project) => (
               <div key={project._id} className="project-card">
