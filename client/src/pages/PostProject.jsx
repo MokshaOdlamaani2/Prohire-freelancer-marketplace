@@ -54,7 +54,7 @@ const PostProject = () => {
       setLoading(true);
 
       // ✅ Post project using configured API (which already includes baseURL)
-      await api.post("/api/projects", payload);
+      await api.post("/projects", payload);
 
       toast.success("Project posted successfully!");
       setSuccess(true);
